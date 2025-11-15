@@ -22,7 +22,6 @@ npm-debug.log
 .DS_Store
 .log
 coverage
-cypress
 .turbo
 /config
 /packages/evershop/config
