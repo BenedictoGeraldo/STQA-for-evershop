@@ -122,7 +122,7 @@ export function detectEffect(event: Event): Effect {
     } else {
       return 'update_api_route';
     }
-  } else if (minimatch(event.path.toString(), '**/api/*/payloadSchema.json')) {
+  } else if (minimatch(event.path.toString(), '**/api/*/')) {
     // This is a payload schema file for an API route
     const routeFolder = basename(dirname(event.path.toString()));
     if (!isValidRouteFolder(routeFolder)) {
