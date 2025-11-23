@@ -21,7 +21,7 @@ describe('Fitur: Autentikasi Admin - Kondisi Logged-Out', () => {
     
     it('TC-001: verifikasi login admin dengan email dan password yang valid', () => {
         cy.get('input[name="email"]').type('admin@email.com');
-        cy.get('input[name="password"]').type('alferli04');
+        cy.get('input[name="password"]').type('123123123');
         cy.get('button[type="submit"]').click();
 
         cy.url().should('include', '/admin');
@@ -37,7 +37,7 @@ describe('Fitur: Autentikasi Admin - Kondisi Logged-Out', () => {
 
     it('TC-003: verifikasi login admin dengan email salah dan password valid', () => {   
         cy.get('input[name="email"]').type('admin@gmail.com');
-        cy.get('input[name="password"]').type('admin123');
+        cy.get('input[name="password"]').type('123123123');
         cy.get('button[type="submit"]').click();
 
         cy.url().should('include', '/admin/login');
@@ -59,21 +59,21 @@ describe('Fitur: Autentikasi Admin - Kondisi Logged-Out', () => {
     });
 
     it('TC-006: verifikasi login dengan field email kosong dan password valid', () =>{
-        cy.get('input[name="password"]').type('alferli04');
+        cy.get('input[name="password"]').type('123123123');
         cy.get('button[type="submit"]').click();
         cy.contains('This field can not be empty').should('be.visible');
     });
 
     it('TC-007: verifikasi login dengan format email yang tidak valid', () =>{
         cy.get('input[name="email"]').type('admin@.com'); 
-        cy.get('input[name="password"]').type('alferli04');
+        cy.get('input[name="password"]').type('123123123');
         cy.get('button[type="submit"]').click();
         cy.contains('Invalid email').should('be.visible');
     });
 
     it('TC-008: verifikasi input password disembunyikan', () => {
         cy.get('input[name="password"]')
-          .type('admin123') // Input 
+          .type('123123123') // Input 
           .should('have.attr', 'type', 'password');
     });
 
@@ -99,7 +99,7 @@ it('TC-009: verifikasi fungsionalitas logout sukses', () => {
 
     // 2. Login sebagai admin
     cy.get('input[name="email"]').type('admin@email.com');
-    cy.get('input[name="password"]').type('alferli04');
+    cy.get('input[name="password"]').type('123123123');
     cy.get('button[type="submit"]').click();
 
     cy.url().should('include', '/admin');
