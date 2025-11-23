@@ -27,8 +27,8 @@ describe("Dashboard Module E2E", () => {
     adminLogin();
   });
 
-  // TC018 - Halaman dashboard tampil
-  it("TC018 - Dashboard tampil", () => {
+  // TC030 - Halaman dashboard tampil
+  it("TC030 - Dashboard tampil", () => {
     refreshDashboard();
     cy.get('.page-heading-title').contains("Dashboard").should("exist");
     cy.get('.card-title').contains("Sale Statistics").should("exist");
@@ -36,8 +36,8 @@ describe("Dashboard Module E2E", () => {
     cy.get('.card-title').contains("Best Sellers").should("exist");
   });
 
-  // TC019 - Summary & grafik sesuai order kosong/ada
-  it("TC019 - Dashboard: order dan sales", () => {
+  // TC031 - Summary & grafik sesuai order kosong/ada
+  it("TC031 - Dashboard: order dan sales", () => {
     refreshDashboard();
     cy.get('.card-title').contains("Lifetime Sales").parents('.card').within(() => {
       cy.get('.self-center').contains('orders').should('exist');
@@ -49,8 +49,8 @@ describe("Dashboard Module E2E", () => {
       .should('exist');
   });
 
-  // TC020 - Dashboard vs Order List: jumlah order cross-check
-  it("TC020 - Jumlah order di dashboard = order list", () => {
+  // TC032 - Dashboard vs Order List: jumlah order cross-check
+  it("TC032 - Jumlah order di dashboard = order list", () => {
     cy.visit(baseUrl + '/orders');
     cy.get('table.listing.sticky > tbody > tr').then((trs) => {
       const orderCount = trs.length - 1; // exclude header or dummy tr
@@ -61,8 +61,8 @@ describe("Dashboard Module E2E", () => {
     });
   });
 
-  // TC022 - Best seller: produk terlaris tampil
-  it("TC022 - Produk best seller tampil urut", () => {
+  // TC033 - Best seller: produk terlaris tampil
+  it("TC033 - Produk best seller tampil urut", () => {
     refreshDashboard();
     cy.get('.card-title').contains("Best Sellers").parents('.card').within(() => {
       cy.get('table.bestsellers tbody tr').first().find('a.font-semibold').should('exist');
@@ -73,8 +73,8 @@ describe("Dashboard Module E2E", () => {
     });
   });
 
-  // TC023 - Grafik dashboard berada di area chart dan ada label tanggal
-  it("TC023 - Grafik ada label tanggal", () => {
+  // TC034 - Grafik dashboard berada di area chart dan ada label tanggal
+  it("TC034 - Grafik ada label tanggal", () => {
     refreshDashboard();
     cy.get('.card-title').contains("Sale Statistics").parents('.card').within(() => {
       cy.get('svg.recharts-surface').should('exist');
@@ -82,17 +82,43 @@ describe("Dashboard Module E2E", () => {
     });
   });
 
-  // TC024 - Statistik order di pie chart tampil
-  it("TC024 - Statistik order pie chart tampil", () => {
+  // TC035 - Validasi tampilan “Best Sellers”
+  it("TC035 - Validasi tampilan 'Best Sellers' di dashboard", () => {
     refreshDashboard();
-    cy.get('.card-title').contains("Lifetime Sales").parents('.card').within(() => {
-      cy.get('svg.recharts-surface').should('exist');
-      cy.get('.recharts-pie-label-text').should('exist');
+
+    // Ambil seluruh baris produk di tabel best sellers
+    cy.get('.card-title').contains("Best Sellers").parents('.card').within(() => {
+      // Dapatkan semua baris produk best seller
+      cy.get('table.bestsellers tbody tr').then($rows => {
+        // Pastikan ada minimal 1 baris
+        expect($rows.length).to.be.gte(1);
+
+        // Ambil jumlah sold setiap produk pada setiap baris
+        const soldList = [];
+        cy.wrap($rows).each(($row, idx) => {
+          // Jumlah sold ada di <td> terakhir misal "4 sold"
+          cy.wrap($row).find('td').last().invoke('text').then(text => {
+            // Ambil angka dari teks "X sold"
+            const sold = parseInt(text.replace(/[^0-9]/g, ''), 10);
+            soldList.push(sold);
+
+            // Jika sudah di baris terakhir, validasi urutan
+            if (idx === $rows.length - 1) {
+              const sorted = [...soldList].sort((a, b) => b - a); // Urutan desc
+              expect(soldList).to.deep.equal(sorted); // Pastikan urut dari terbanyak ke sedikit
+            }
+          });
+        });
+
+        // Validasi produk terlaris di posisi pertama (custom nama, misal Urban Denim Jacket)
+        cy.wrap($rows[0]).find('a.font-semibold').invoke('text').should('eq', 'Urban Denim Jacket');
+        cy.wrap($rows[0]).find('td').last().invoke('text').should('contain', '4 sold');
+      });
     });
   });
 
-  // TC026 - Setelah reload, dashboard tetap tampil konsisten
-  it("TC026 - Reload dashboard tetap muncul", () => {
+  // TC036 - Setelah reload, dashboard tetap tampil konsisten
+  it("TC036 - Reload dashboard tetap muncul", () => {
     cy.visit(baseUrl);
     cy.reload();
     cy.get('.card-title').contains('Sale Statistics').should('exist');
@@ -100,8 +126,8 @@ describe("Dashboard Module E2E", () => {
     cy.get('.card-title').contains('Lifetime Sales').should('exist');
   });
 
-  // TC027 - Filter periodik dashboard chart aktif (daily/weekly/monthly)
-  it("TC027 - Filter grafik sales periodik berjalan", () => {
+  // TC037 - Filter periodik dashboard chart aktif (daily/weekly/monthly)
+  it("TC037 - Filter grafik sales periodik berjalan", () => {
     refreshDashboard();
     cy.get('.card-title').contains("Sale Statistics").parents('.card').within(() => {
       cy.contains('a.text-interactive', 'Daily').click();
@@ -113,14 +139,13 @@ describe("Dashboard Module E2E", () => {
     });
   });
 
-  // TC028 - Dashboard harus tampil < 3 detik
-  it("TC028 - Performa load dashboard < 3 detik", () => {
+  // TC038 - Dashboard harus tampil < 3 detik
+  it("TC038 - Performa load dashboard < 2 detik", () => {
     const start = Date.now();
     cy.visit(baseUrl);
     cy.get('.page-heading-title').contains("Dashboard").should("exist").then(() => {
       const loadTime = Date.now() - start;
-      expect(loadTime).to.be.lessThan(3000);
+      expect(loadTime).to.be.lessThan(2000);
     });
   });
-
 });

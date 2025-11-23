@@ -450,3 +450,102 @@ it("TC020 - Menambah kupon untuk user tertentu dan validasi kupon (Invalid)", ()
   cy.contains('a', 'Logout').click();
   cy.url().should('not.include', '/account');
 });
+
+it("TC021 - Menambah kupon tanpa user tertentu dan validasi kupon", () => {
+  cy.visit(baseUrl + "/login");
+  cy.get('input[name="email"]').type(loginEmail);
+  cy.get('input[name="password"]').type(loginPass);
+  cy.get('button[type="submit"]').click();
+  cy.wait(500);
+  cy.url().should('include', "/admin");
+
+  cy.visit(baseUrl + "/coupon/new");
+  cy.get('input[name="coupon"]').type('ONE4ALL');
+  cy.get('textarea[name="description"]').type('Tanpa User tertentu');
+  cy.get('input[name="discount_amount"]').type('20');
+  cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
+  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.contains('label', 'Fixed discount to entire order').click();
+  cy.wait(500);
+
+  cy.contains('button', 'Save', { timeout: 10000 }).click();
+
+  cy.wait(1000);
+  cy.visit(baseUrl + '/coupons');
+  cy.reload();
+  cy.wait(500);
+  cy.contains('ONE4ALL', { timeout: 10000 }).should('exist');
+
+  cy.clearCookies();
+  cy.wait(500);
+  cy.visit('http://localhost:3000/account/login');
+  cy.get('input[name="email"]').clear().type('user@email.com');
+  cy.get('input[name="password"]').type('123123123');
+  cy.get('button[type="submit"]').contains('SIGN IN').click();
+  cy.wait(800);
+
+  cy.visit('http://localhost:3000/men');
+  cy.wait(500);
+  cy.contains('.listing-tem .product-name a', 'Air Max Runner Men').click();
+  cy.wait(500);
+
+  cy.contains('button', 'ADD TO CART').click();
+  cy.wait(1000);
+
+  cy.get('.Toastify__toast-container', { timeout: 10000 })
+    .should('be.visible')
+    .within(() => {
+      cy.get('a.add-cart-popup-button').contains('VIEW CART').click();
+    });
+  cy.wait(1000);
+
+  cy.get('input[name="coupon"]').clear().type('ONE4ALL');
+  cy.contains('button', 'Apply').click();
+  cy.wait(1000);
+
+  cy.contains('.summary', 'Discount(ONE4ALL)').parent().within(() => {
+    cy.get('.text-right').invoke('text').then((discountText) => {
+      expect(discountText.trim()).not.to.eq('$0.00');
+    });
+  });
+  cy.get('#shopping-cart-items a').contains('Remove').click();
+  cy.wait(500);
+  cy.visit('http://localhost:3000/account');
+  cy.contains('a', 'Logout').click();
+  cy.url().should('not.include', '/account');
+
+    cy.visit('http://localhost:3000/account/login');
+  cy.get('input[name="email"]').clear().type('user2@email.com');
+  cy.get('input[name="password"]').type('123123123');
+  cy.get('button[type="submit"]').contains('SIGN IN').click();
+  cy.wait(800);
+
+  cy.visit('http://localhost:3000/men');
+  cy.wait(500);
+  cy.contains('.listing-tem .product-name a', 'Air Max Runner Men').click();
+  cy.wait(500);
+
+  cy.contains('button', 'ADD TO CART').click();
+  cy.wait(1000);
+
+  cy.get('.Toastify__toast-container', { timeout: 10000 })
+    .should('be.visible')
+    .within(() => {
+      cy.get('a.add-cart-popup-button').contains('VIEW CART').click();
+    });
+  cy.wait(1000);
+
+  cy.get('input[name="coupon"]').clear().type('ONE4ALL');
+  cy.contains('button', 'Apply').click();
+  cy.wait(1000);
+  cy.contains('.summary', 'Discount(ONE4ALL)').parent().within(() => {
+    cy.get('.text-right').invoke('text').then((discountText) => {
+      expect(discountText.trim()).not.to.eq('$0.00');
+    });
+  });
+  cy.get('#shopping-cart-items a').contains('Remove').click();
+  cy.wait(500);
+  cy.visit('http://localhost:3000/account');
+  cy.contains('a', 'Logout').click();
+  cy.url().should('not.include', '/account');
+});

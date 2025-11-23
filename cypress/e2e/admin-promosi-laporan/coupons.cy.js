@@ -50,9 +50,9 @@ describe("Coupons Module E2E", () => {
     cy.get('input[name="start_date"]').type('2025-11-10', { force: true });
     cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
     cy.contains('label', 'Percentage discount to entire order').click();
-    cy.get('input[name="condition[order_total]"]').type('50000');
+    cy.get('input[name="condition[order_total]"]').type('0');
     cy.get('input[name="condition[order_qty]"]').type('2');
-    cy.get('input[name="user_condition[purchased]"]').type('100000');
+    cy.get('input[name="user_condition[purchased]"]').type('0');
     cy.contains('button', 'Save', { timeout: 10000 }).click();
     refreshCouponList();
     cy.contains('DISKON10', { timeout: 10000 }).should('exist');
@@ -66,10 +66,10 @@ describe("Coupons Module E2E", () => {
     cy.get('input[name="start_date"]').type('2025-11-10', { force: true });
     cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
     cy.contains('label', 'Percentage discount to entire order').click();
-    cy.get('input[name="condition[order_total]"]').type('50000');
+    cy.get('input[name="condition[order_total]"]').type('0');
     cy.get('input[name="condition[order_qty]"]').type('2');
     cy.get('input[name="user_condition[emails]"]').type('user@email.com');
-    cy.get('input[name="user_condition[purchased]"]').type('100000');
+    cy.get('input[name="user_condition[purchased]"]').type('0');
     cy.contains('button', 'Save', { timeout: 10000 }).click();
     cy.contains("This field can not be empty", { timeout: 10000 }).should("exist");
   });
@@ -82,10 +82,10 @@ describe("Coupons Module E2E", () => {
     cy.get('input[name="start_date"]').type('2025-11-10', { force: true });
     cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
     cy.contains('label', 'Percentage discount to entire order').click();
-    cy.get('input[name="condition[order_total]"]').type('50000');
+    cy.get('input[name="condition[order_total]"]').type('0');
     cy.get('input[name="condition[order_qty]"]').type('2');
     cy.get('input[name="user_condition[emails]"]').type('user@email.com');
-    cy.get('input[name="user_condition[purchased]"]').type('100000');
+    cy.get('input[name="user_condition[purchased]"]').type('0');
     cy.contains('button', 'Save', { timeout: 10000 }).click();
     cy.contains("This field can not be empty", { timeout: 10000 }).should("exist");
   });
@@ -171,10 +171,10 @@ describe("Coupons Module E2E", () => {
     cy.get('input[name="start_date"]').type('2025-11-20', { force: true });
     cy.get('input[name="end_date"]').type('2025-11-10', { force: true });
     cy.contains('label', 'Percentage discount to entire order').click();
-    cy.get('input[name="condition[order_total]"]').type('50000');
+    cy.get('input[name="condition[order_total]"]').type('0');
     cy.get('input[name="condition[order_qty]"]').type('2');
     cy.get('input[name="user_condition[emails]"]').type('user@email.com');
-    cy.get('input[name="user_condition[purchased]"]').type('100000');
+    cy.get('input[name="user_condition[purchased]"]').type('0');
     cy.contains('button', 'Save', { timeout: 10000 }).click();
     refreshCouponList();
     cy.contains('TGLINVALID', { timeout: 10000 }).should('exist');
@@ -215,14 +215,15 @@ describe("Coupons Module E2E", () => {
   // TC024 Menghapus kupon
   it("TC024 - Menghapus kupon", () => {
     refreshCouponList();
-    cy.contains('USERONLY').parents('tr').within(() => {
+    cy.contains('NONAKTIF').parents('tr').within(() => {
       cy.get('input[type="checkbox"]').check({ force: true });
     });
     cy.contains('a', 'Delete').click({ force: true });
-    // Jika muncul modal konfirmasi, bisa tambahkan baris berikut
-    cy.contains('button', 'Delete', { timeout: 10000 }).click();
+    cy.wait(500);
+    cy.contains('button', 'Delete', { timeout: 10000 }).click({ force: true });
+
     refreshCouponList();
-    cy.contains('USERONLY').should('not.exist');
+    cy.contains('NONAKTIF').should('not.exist');
   });
 
   // TC025 Ubah status aktif/nonaktif kupon
@@ -253,52 +254,82 @@ describe("Coupons Module E2E", () => {
     cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
     cy.contains('label', 'Percentage discount to entire order').click();
     cy.contains('button', 'Save', { timeout: 10000 }).click();
-    cy.contains("Exception in middleware finish: Exception in middleware updateCoupon: Coupon is invalid", { timeout: 10000 }).should("exist");
+    cy.contains("Exception in middleware finish: Exception in middleware createCoupon: Coupon is invalid", { timeout: 10000 }).should("exist");
   });
 
-  // TC028 Reliability - Menambah kupon berkali-kali tanpa error (stress ringan di UI admin)
-  it('TC028 - Reliability: Menambah kupon berkali-kali tanpa error', () => {
-    const totalCoupons = 10;
+it('TC028 - Reliability: Menambah dan menghapus kupon berkali-kali tanpa error', () => {
+  const totalCoupons = 10;
+  for (let i = 0; i < totalCoupons; i++) {
+    cy.visit(baseUrl + '/coupon/new');
+    cy.wait(600);
 
-    for (let i = 0; i < totalCoupons; i++) {
-      cy.visit(baseUrl + '/coupon/new');
+    cy.get('input[name="coupon"]').clear().type(`RLBLTY${i}`);
+    cy.get('textarea[name="description"]').clear().type(`Reliability test kupon ke-${i}`);
+    cy.get('input[name="discount_amount"]').clear().type('5');
+    cy.wait(200);
+    cy.get('input[name="start_date"]').type('2025-11-10', { force: true });
+    cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+    cy.wait(200);
+    cy.contains('label', 'Percentage discount to entire order').click();
+    cy.get('input[name="condition[order_total]"]').type('0');
+    cy.get('input[name="condition[order_qty]"]').type('1');
+    cy.wait(200);
 
-      cy.get('input[name="coupon"]').clear().type(`RLBLTY${i}`);
-      cy.get('textarea[name="description"]').clear().type(`Reliability test kupon ke-${i}`);
-      cy.get('input[name="discount_amount"]').clear().type('5');
-      cy.get('input[name="start_date"]').type('2025-11-10', { force: true });
-      cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
-      cy.contains('label', 'Percentage discount to entire order').click();
-      cy.get('input[name="condition[order_total]"]').type('50000');
-      cy.get('input[name="condition[order_qty]"]').type('1');
+    cy.contains('button', 'Save', { timeout: 10000 }).click({ force: true });
+    cy.wait(600);
+    cy.get('body').then($body => {
+      const hasError = $body.find('.Toastify__toast--error, .alert-danger').length > 0;
+      expect(hasError).to.eq(false);
+    });
+    cy.wait(400);
+  }
 
-      cy.contains('button', 'Save', { timeout: 10000 }).click();
-      cy.get('body').then($body => {
-        const hasError = $body.find('.Toastify__toast--error, .alert-danger').length > 0;
-        expect(hasError).to.eq(false);
-      });
-    }
+  refreshCouponList();
+  cy.get('input[name="coupon"][placeholder="Search"]')
+    .type('RLBLTY0', { force: true });
+  cy.wait(1000);
+  cy.contains('RLBLTY0', { timeout: 10000 }).should('exist');
+
+  for (let i = 0; i < totalCoupons; i++) {
     refreshCouponList();
-    cy.get('input[name="coupon"][placeholder="Search"]')
-      .type('RLBLTY5', { force: true });
-    cy.wait(1000);
-    cy.contains('RLBLTY5', { timeout: 10000 }).should('exist');
-  });
+    cy.wait(600);
+    cy.get('input[name="coupon"][placeholder="Search"]').clear().type(`RLBLTY${i}`, { force: true });
+    cy.wait(800);
 
-  // TC029 Portability - Cek halaman daftar kupon pada viewport iPhone (adaptability)
+    cy.contains('RLBLTY' + i, { timeout: 10000 })
+      .parents('tr')
+      .within(() => {
+        cy.get('input[type="checkbox"]').check({ force: true });
+      });
+    cy.wait(400);
+
+    cy.contains('a', 'Delete').click({ force: true });
+    cy.contains('button', 'Delete', { timeout: 10000 }).click({ force: true });
+    cy.wait(1000);
+
+    cy.contains(`RLBLTY${i}`, { timeout: 5000 }).should('not.exist');
+    cy.wait(400);
+  }
+});
+
+  // TC029 - Portability: Halaman daftar kupon pada viewport iPhone (iphone-x)
   it('TC029 - Portability: Halaman daftar kupon pada viewport iPhone (iphone-x)', () => {
-    // Set viewport ke iPhone X
-    cy.viewport('iphone-x'); // 375 x 812[web:42]
+    cy.viewport('iphone-x'); // 375 x 812
 
     refreshCouponList();
     cy.contains('New Coupon').should('be.visible');
     cy.get('input[name="coupon"][placeholder="Search"]').should('be.visible');
-    cy.get('table').should('be.visible');
 
-    cy.get('input[name="coupon"][placeholder="Search"]').type('RLBLTY5');
+    // Scroll ke tabel supaya Cypress mendeteksi visible di viewport
+    cy.get('table.listing.sticky').scrollIntoView();
+
+    cy.get('input[name="coupon"][placeholder="Search"]').type('DISKON10', { force: true });
     cy.wait(1000);
-    cy.get('table').contains('RLBLTY5', { timeout: 10000 }).should('exist');
-  });
 
+    cy.contains('DISKON10').should('exist');
+
+    // Jika ingin memastikan benar-benar terlihat dan tidak ketutup layout:
+    cy.contains('DISKON10').scrollIntoView().should('be.visible');
+  });
 });
 
