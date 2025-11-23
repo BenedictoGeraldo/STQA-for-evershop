@@ -1,7 +1,7 @@
 describe('Admin - Manajemen Katalog', () => {
 
     const ADMIN_EMAIL = 'admin@email.com'; 
-    const ADMIN_PASSWORD = 'alferli04'; 
+    const ADMIN_PASSWORD = '123123123'; 
     const ATTRIBUTES_URL = '/admin/attributes';
 
     // BeforeEach: Login ke Dashboard

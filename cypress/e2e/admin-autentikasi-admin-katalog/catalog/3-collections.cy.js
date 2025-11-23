@@ -3,7 +3,7 @@
 describe('Admin - Manajemen Koleksi Katalog', () => {
 
     const ADMIN_EMAIL = 'admin@email.com'; 
-    const ADMIN_PASSWORD = 'alferli04'; 
+    const ADMIN_PASSWORD = '123123123'; 
     
     // ... (beforeEach tetap sama: Login ke Dashboard) ...
     beforeEach(() => {

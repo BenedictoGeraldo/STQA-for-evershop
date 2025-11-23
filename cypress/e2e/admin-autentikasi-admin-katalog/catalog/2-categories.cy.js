@@ -3,7 +3,7 @@
 describe('Admin | Catalog - Manage Categories (TC-021 - TC-030)', () => {
 
     const ADMIN_EMAIL = 'admin@email.com';
-    const ADMIN_PASSWORD = 'alferli04'; // Sesuai konfirmasi terakhir
+    const ADMIN_PASSWORD = '123123123'; 
 
 // Di dalam file categories.cy.js Anda, ganti fungsi createCategory:
 // Ganti fungsi createCategory di file categories.cy.js Anda
@@ -67,7 +67,7 @@ beforeEach(() => {
         cy.visit('/admin/login');
         // Pastikan selector dan password benar
         cy.get("input[name='email']").type('admin@email.com'); 
-        cy.get("input[name='password']").type('alferli04'); // Gunakan password yang dikonfirmasi
+        cy.get("input[name='password']").type('123123123'); // Gunakan password yang dikonfirmasi
         cy.get("button[type='submit']").click();
         
         // Verifikasi URL setelah login (Pastikan TIDAK kembali ke /login)
