@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-const baseUrl = "http://localhost:3002/admin";
+const baseUrl = "http://localhost:3000/admin";
 const loginEmail = "admin@email.com";
 const loginPass = "123123123";
 
