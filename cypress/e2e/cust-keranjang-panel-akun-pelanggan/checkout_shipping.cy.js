@@ -1,8 +1,8 @@
 describe('E2E Full Checkout Flow (TC-008, 009, 010)', () => {
   
   // Gunakan akun dummy yang valid di local Anda
-  const userEmail = 'efulkabima0407@gmail.com';
-  const userPass = 'Jakarta2004';
+  const userEmail = 'user@email.com';
+  const userPass = '123123123';
   
   const shippingData = {
     fullName: 'Evan Test',

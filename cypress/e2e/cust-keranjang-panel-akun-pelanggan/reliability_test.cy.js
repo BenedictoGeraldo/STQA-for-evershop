@@ -1,7 +1,7 @@
 describe('Skenario Reliability Testing (TC-023 s/d TC-025)', () => {
 
-  const userEmail = 'efulkabima0407@gmail.com';
-  const userPass = 'Jakarta2004';
+  const userEmail = 'user@email.com';
+  const userPass = '123123123';
   
   const specialCharAddress = {
     fullName: 'Evan Spesial @#$%',

@@ -1,7 +1,7 @@
 describe('Skenario My Account: Riwayat & Alamat (TC-011 s/d TC-013)', () => {
   
-  const userEmail = 'efulkabima0407@gmail.com';
-  const userPass = 'Jakarta2004';
+  const userEmail = 'user@email.com';
+  const userPass = '123123123';
 
   // DATA DINAMIS
   const timestamp = Date.now(); 

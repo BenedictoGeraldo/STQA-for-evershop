@@ -1,7 +1,7 @@
 describe('Final Scope Front Store: Checkout & Portability (TC-031, TC-046, TC-047), serta tambahan TC-035 dan TC-040', () => {
 
-  const userEmail = 'efulkabima0407@gmail.com';
-  const userPass = 'Jakarta2004';
+  const userEmail = 'user@email.com';
+  const userPass = '123123123';
   
   // Data Guest untuk Checkout
   const guestData = {

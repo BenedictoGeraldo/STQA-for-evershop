@@ -1,7 +1,7 @@
 describe('Skenario Pengujian Keamanan (TC-016 & TC-017)', () => {
 
-  const userEmail = 'efulkabima0407@gmail.com';
-  const userPass = 'Jakarta2004';
+  const userEmail = 'user@email.com';
+  const userPass = '123123123';
   
   // Payload XSS: Script sederhana
   const xssPayload = "<script>alert('XSS')</script>";

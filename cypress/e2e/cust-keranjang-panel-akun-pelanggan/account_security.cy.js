@@ -1,7 +1,7 @@
 describe('Skenario Keamanan & Manajemen Akun (TC-036 s/d TC-039, TC-048)', () => {
 
-  const userEmail = 'efulkabima0407@gmail.com';
-  const userPass = 'Jakarta2004';
+  const userEmail = 'user@email.com';
+  const userPass = '123123123';
   const timestamp = Date.now();
   
   // Data untuk TC Delete & Negative
