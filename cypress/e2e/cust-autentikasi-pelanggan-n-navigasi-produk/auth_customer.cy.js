@@ -1,4 +1,4 @@
-// cypress/e2e/cust-authentication.cy.js
+// cypress/e2e/admin-authentication.cy.js
 
 /**
  * ======================================================================
@@ -23,8 +23,8 @@ describe("Full E2E Authentication Flow – Evershop", () => {
 
   // TC-001 – Akun belum terdaftar
   it("TC-001 | Login gagal (akun belum terdaftar)", () => {
-    cy.get('input[name="email"]').type("user@email.com");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="email"]').type("rendi123@gmail.com");
+    cy.get('input[name="password"]').type("RendiiCoyyy");
     cy.get('button[type="submit"]').click();
 
     cy.contains("Invalid email or password").should("be.visible");
@@ -40,8 +40,8 @@ describe("Full E2E Authentication Flow – Evershop", () => {
   it("TC-003 | Validasi Full Name kosong", () => {
     cy.visit(registerUrl);
 
-    cy.get('input[name="email"]').type("user@email.com");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="email"]').type("valid@example.com");
+    cy.get('input[name="password"]').type("SecurePassword123");
     cy.get('button[type="submit"]').click();
 
     cy.contains("This field can not be empty").should("be.visible");
@@ -52,7 +52,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     cy.visit(registerUrl);
 
     cy.get('input[name="full_name"]').type("Testing User");
-    cy.get('input[name="email"]').type("user@email.com");
+    cy.get('input[name="email"]').type("valid@example.com");
     cy.get('button[type="submit"]').click();
 
     cy.contains("This field can not be empty").should("be.visible");
@@ -64,7 +64,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
 
     cy.get('input[name="full_name"]').type("New Tester");
     cy.get('input[name="email"]').type("email.tanpa@domain");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="password"]').type("SecurePassword123");
     cy.get('button[type="submit"]').click();
 
     cy.contains("Invalid email").should("be.visible");
@@ -74,8 +74,8 @@ describe("Full E2E Authentication Flow – Evershop", () => {
   it("TC-006 | Register sukses", () => {
     cy.visit(registerUrl);
     cy.get('input[name="full_name"]').type("User Baru");
-    cy.get('input[name="email"]').type("user@email.com");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="email"]').type("user.valid@example.com");
+    cy.get('input[name="password"]').type("SecurePassword123");
     cy.get('button[type="submit"]').click();
 
     cy.url().should("include", "/account");
@@ -83,8 +83,8 @@ describe("Full E2E Authentication Flow – Evershop", () => {
 
   // TC-007 – Login sukses
   it("TC-007 | Login sukses", () => {
-    cy.get('input[name="email"]').type("user@email.com");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="email"]').type("user.valid@example.com");
+    cy.get('input[name="password"]').type("SecurePassword123");
     cy.get('button[type="submit"]').click();
 
     cy.url().should("include", "/account");
@@ -92,7 +92,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
 
   // TC-008 – Password salah
   it("TC-008 | Login gagal - password salah", () => {
-    cy.get('input[name="email"]').type("user@email.com");
+    cy.get('input[name="email"]').type("user.valid@example.com");
     cy.get('input[name="password"]').type("PasswordSalah456");
     cy.get('button[type="submit"]').click();
 
@@ -102,7 +102,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
   // TC-009 – Email tidak terdaftar
   it("TC-009 | Login gagal - email tidak terdaftar", () => {
     cy.get('input[name="email"]').type("belumterdaftar@test.com");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="password"]').type("SecurePassword123");
     cy.get('button[type="submit"]').click();
 
     cy.contains("Invalid email or password").should("be.visible");
@@ -110,7 +110,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
 
   // TC-010 – Email kosong
   it("TC-010 | Validasi email kosong (Login)", () => {
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="password"]').type("AnyPassword");
     cy.get('button[type="submit"]').click();
 
     cy.contains("This field can not be empty").should("be.visible");
@@ -118,7 +118,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
 
   // TC-011 – Password kosong
   it("TC-011 | Validasi password kosong (Login)", () => {
-    cy.get('input[name="email"]').type("user@email.com");
+    cy.get('input[name="email"]').type("valid@example.com");
     cy.get('button[type="submit"]').click();
 
     cy.contains("This field can not be empty").should("be.visible");
@@ -127,7 +127,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
   // TC-012 – Format email salah
   it("TC-012 | Validasi format email salah (Login)", () => {
     cy.get('input[name="email"]').type("emailtanpaat.com");
-    cy.get('input[name="password"]').type("123123123");
+    cy.get('input[name="password"]').type("AnyPassword");
     cy.get('button[type="submit"]').click();
 
     cy.contains("Invalid email").should("be.visible");
@@ -143,7 +143,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
   it("TC-014 | Reset password sukses", () => {
     cy.visit(resetUrl);
 
-    cy.get('input[name="email"]').type("user@email.com");
+    cy.get('input[name="email"]').type("valid@example.com");
     cy.get('button[type="submit"]').click();
 
     cy.contains("We have sent you an email with a link to reset your password. Please check your inbox.").should("be.visible");
@@ -183,8 +183,8 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     const randomEmail = `test${Date.now()}@example.com`;
 
     cy.get('input[name="full_name"]').type("User Test");
-    cy.get('input[name="email"]').type("user@email.com");
-    cy.get('input[name="password"]').type("123"); // kurang dari 8 karakter
+    cy.get('input[name="email"]').type(randomEmail);
+    cy.get('input[name="password"]').type("short1"); // kurang dari 8 karakter
 
     cy.get('button[type="submit"]').click();
 
@@ -196,10 +196,10 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     cy.visit(registerUrl);
 
     const longName = "A".repeat(150); // 150 karakter
-
+    const randomEmail = `test${Date.now()}@example.com`;
 
     cy.get('input[name="full_name"]').type(longName);
-    cy.get('input[name="email"]').type("user@email.com");
+    cy.get('input[name="email"]').type(randomEmail);
     cy.get('input[name="password"]').type("password123");
 
     cy.get('button[type="submit"]').click();
@@ -217,5 +217,93 @@ describe("Full E2E Authentication Flow – Evershop", () => {
       .should("have.attr", "placeholder", "Email");
     cy.get('input[name="password"]')
       .should("have.attr", "placeholder", "Password");
+  });
+
+  it("TC-025 | Navigasi ke Koleksi Wanita (Shop Women)", () => {
+    cy.visit("/");
+    cy.contains("Shop women").click();
+
+    cy.url().should("include", "/category/women");
+    cy.contains("WOMEN").should("be.visible");
+  });
+
+  it("TC-026 | Link Shop di header menuju katalog utama", () => {
+    cy.visit("/");
+    cy.get("header").contains("Shop").click();
+
+    cy.url().should("include", "/products");
+  });
+
+  it("TC-028 | Tidak ada produk di kategori Women", () => {
+    cy.visit("/category/women");
+
+    cy.contains("There is no product to display").should("be.visible");
+  });
+
+  it("TC-029 | Sorting Harga: Low to High", () => {
+    cy.visit("/category/women");
+
+    cy.get('select[name="sort"]').select("Price: Low to High");
+
+    const prices = [];
+
+    cy.get(".product-card .price").each(($el) => {
+      const price = parseFloat($el.text().replace("$", ""));
+      prices.push(price);
+    }).then(() => {
+      const sorted = [...prices].sort((a, b) => a - b);
+      expect(prices).to.deep.equal(sorted);
+    });
+  });
+
+  it("TC-030 | Filter harga dari 0 sampai 50", () => {
+    cy.visit("/category/women");
+
+    cy.get(".price-slider-min").invoke("val", 0).trigger("change");
+    cy.get(".price-slider-max").invoke("val", 50).trigger("change");
+
+    cy.get(".product-card .price").each(($el) => {
+      const price = parseFloat($el.text().replace("$", ""));
+      expect(price).to.be.within(0, 50);
+    });
+  });
+
+  it("TC-032 | Ikon search menampilkan kolom input", () => {
+    cy.visit("/");
+    cy.get(".search-icon").click();
+    cy.get('input[name="search"]').should("be.visible");
+  });
+
+  it("TC-034 | PDP menampilkan nama, harga, dan SKU", () => {
+    cy.visit("/product/striped-cotton-sweater");
+
+    cy.contains("Striped Cotton Sweater").should("be.visible");
+    cy.contains("$90.00").should("be.visible");
+    cy.contains("SCS-24680").should("be.visible");
+  });
+
+  it("TC-035 | Add to Cart berhasil", () => {
+    cy.visit("/product/striped-cotton-sweater");
+
+    cy.contains("ADD TO CART").click();
+    cy.contains("Added to cart").should("be.visible");
+
+    cy.get(".cart-icon .count").should("contain", "1");
+  });
+
+  it("TC-036 | Add to Cart dengan quantity 5", () => {
+    cy.visit("/product/striped-cotton-sweater");
+
+    cy.get('input[name="quantity"]').clear().type("5");
+    cy.contains("ADD TO CART").click();
+
+    cy.contains("Added to cart").should("be.visible");
+    cy.get(".cart-icon .count").should("contain", "5");
+  });
+
+  it("TC-037 | Placeholder image ketika gambar tidak tersedia", () => {
+    cy.visit("/product/no-image-product");
+
+    cy.get(".image-placeholder").should("be.visible");
   });
 });
