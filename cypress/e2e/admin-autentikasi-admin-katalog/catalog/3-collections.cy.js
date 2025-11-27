@@ -1,32 +1,54 @@
-// evershop_admin_collections.cy.js
-
 describe('Admin - Manajemen Koleksi Katalog', () => {
 
     const ADMIN_EMAIL = 'admin@email.com'; 
     const ADMIN_PASSWORD = '123123123'; 
     
-    // ... (beforeEach tetap sama: Login ke Dashboard) ...
+    // ... (beforeEach: Hard Login ke Dashboard) ...
     beforeEach(() => {
+        // Hard Login untuk stabilitas
         cy.visit('/admin/login');
         cy.get("input[name='email']").type(ADMIN_EMAIL); 
         cy.get("input[name='password']").type(ADMIN_PASSWORD); 
         cy.get("button[type='submit']").click();
+        
+        // Verifikasi Dashboard dimuat
         cy.url().should('include', '/admin');
         cy.contains('h1', 'Dashboard').should('be.visible'); 
     });
 
     // ------------------------------------------------------------------
 
-    // TC-033: Memastikan admin dapat mengakses halaman Koleksi Katalog
-    it('TC-033: Memastikan admin dapat mengakses halaman Koleksi Katalog', () => {
+    // TC-033 & WCAG-004: Memastikan admin dapat mengakses halaman Koleksi Katalog dan menguji Usability
+    it('TC-033 & WCAG-004: Verifikasi akses dan Usability (WCAG) halaman Collections', () => {
+        
+        // 1. Navigasi ke Collections
         cy.contains('a', 'Collections') 
             .should('be.visible')
             .click(); 
         
+        // 2. Verifikasi Halaman
         cy.contains('h1', 'Collections').should('be.visible');
         cy.url().should('include', '/admin/collections');
         cy.get('table').should('be.visible'); 
         cy.contains('a', 'New Collection').should('be.visible');
+
+        // 3. ♿️ WCAG-004: PENGUJIAN USABILITY/ACCESSIBILITY
+        
+        // Inject Axe-core ke halaman Collections yang baru dimuat
+        cy.injectAxe(); 
+        
+        // Jalankan check A11y (WCAG AA) dengan logging kustom
+        cy.checkA11yWithLogging(null, {
+            includedTags: ['wcag2a', 'wcag2aa'],
+            rules: {
+                // Aturan yang krusial untuk halaman berdata (tabel)
+                'td-headers-attr': { enabled: true }, 
+                'color-contrast': { enabled: true },
+                'select-name': { enabled: true } // Fokus pada Select/Pagination
+            }
+        });
+        
+        cy.log('🎉 Pemeriksaan WCAG Halaman Collections Selesai.');
     });
     
     // ------------------------------------------------------------------

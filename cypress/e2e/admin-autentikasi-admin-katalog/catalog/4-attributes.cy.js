@@ -5,42 +5,54 @@ describe('Admin - Manajemen Katalog', () => {
     const ATTRIBUTES_URL = '/admin/attributes';
 
     // BeforeEach: Login ke Dashboard
-beforeEach(() => {
+    beforeEach(() => {
+        // Hard Login untuk stabilitas
         cy.visit('/admin/login');
         
-        // Memastikan field email tidak disabled sebelum mengetik
         cy.get("input[name='email']")
             .should('not.be.disabled') 
             .type(ADMIN_EMAIL); 
         
-        // Memastikan field password tidak disabled sebelum mengetik (Solusi untuk Error Anda)
         cy.get("input[name='password']")
-            .should('not.be.disabled') // Tunggu hingga elemen tidak disabled
+            .should('not.be.disabled') 
             .type(ADMIN_PASSWORD); 
             
         cy.get("button[type='submit']").click();
+        
+        // Verifikasi Dashboard dimuat
         cy.url().should('include', '/admin');
         cy.contains('h1', 'Dashboard').should('be.visible'); 
     });
 
-    // --- TEST CASE TC-045 ---
-    it('TC-045: Verifikasi Akses Halaman Atribut (Katalog)', () => {
+    // --- TEST CASE TC-045 & WCAG-005 ---
+    it('TC-045 & WCAG-005: Verifikasi Akses dan Usability (WCAG) Halaman Atribut', () => {
         // 1. Aksi: Navigasi langsung ke URL Atribut
         cy.visit(ATTRIBUTES_URL);
 
-        // 2. Verifikasi: URL sudah sesuai
+        // 2. Verifikasi: URL & Judul halaman
         cy.url().should('include', ATTRIBUTES_URL);
-
-        // 3. Verifikasi: Judul halaman terlihat
-        // Asumsi: Judul halaman adalah "Attributes" atau "Daftar Atribut"
-        // Kita akan cek judul 'Attributes' atau 'Daftar Atribut' sebagai judul utama
-        cy.contains('h1', /Attributes/i) // Mencari h1 yang mengandung teks 'attributes' atau 'daftar atribut' (case insensitive)
+        cy.contains('h1', /Attributes/i) 
           .should('be.visible');
-
-        // 4. Verifikasi: Tombol utama 'Tambah Atribut Baru' terlihat
-        // Asumsi: Tombol untuk menambah atribut memiliki teks 'New Attribute' atau 'Tambah Atribut Baru'
         cy.contains('a', /New Attribute/i)
           .should('be.visible');
+          
+        // 3. ♿️ PENGUJIAN WCAG-005: Injeksi dan Check Usability
+        
+        // Injeksi Axe-core ke halaman Attributes yang baru dimuat
+        cy.injectAxe(); 
+        
+        // Jalankan check A11y (WCAG AA) dengan logging kustom
+        cy.checkA11yWithLogging(null, {
+            includedTags: ['wcag2a', 'wcag2aa'],
+            rules: {
+                // Aturan yang krusial untuk halaman berdata (tabel)
+                'td-headers-attr': { enabled: true }, // Penting untuk header kolom tabel
+                'color-contrast': { enabled: true }, 
+                'select-name': { enabled: true } // Fokus pada Select/Pagination
+            }
+        });
+        
+        cy.log('🎉 Pemeriksaan WCAG Halaman Attributes Selesai.');
     });
 
 

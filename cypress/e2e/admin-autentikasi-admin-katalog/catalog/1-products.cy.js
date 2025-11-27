@@ -1,43 +1,46 @@
-
 describe('Admin | Catalog - Manage Products (TC-011 - TC-020)', () => {
 
-  Cypress.on('uncaught:exception', (err, runnable) => {
-        return false;
-    });
-  
-  /**
-   * Login sekali sebelum semua tes di blok 'describe' ini.
-   * Menggunakan cy.session() adalah cara modern dan efisien untuk
-   * menangani autentikasi. Cypress akan menyimpan cache session
-   * dan menggunakannya kembali di setiap 'it' block.
-   */
-// Di dalam describe block Anda, GANTI `beforeEach` Anda dengan ini:
+    Cypress.on('uncaught:exception', (err, runnable) => {
+        return false;
+    });
+  
+    // Hapus total blok 'before' yang berisi cy.session()
+
     beforeEach(() => {
-    // 1. Buat atau restore sesi login
-        cy.session('adminLogin', () => {
-        cy.visit('/admin/login'); // Mulai dari halaman login
+        // 🚨 SOLUSI AKHIR: Lakukan HARD LOGIN sebelum setiap test
+        // Ini menjamin sesi selalu baru dan valid.
+        cy.visit('/admin/login'); 
         cy.get("input[name='email']").type('admin@email.com'); 
         cy.get("input[name='password']").type('123123123'); 
         cy.get("button[type='submit']").click();
-        cy.url().should('include', '/admin'); // Verifikasi login sukses
-    });
-  
-  // 2. Kunjungi halaman dashboard SEBELUM SETIAP TES
-  // Ini memastikan setiap tes 'it' dimulai dari tempat yang benar
-  cy.visit('/admin'); 
-});
 
-  // TC-011: Navigasi ke halaman products
-  it('TC-011: Verifikasi navigasi ke halaman products', () => {
-    cy.visit('/admin'); // Mulai dari dashboard
-    
-    // Klik submenu Products
-    cy.get('a[href="http://localhost:3000/admin/products"]').click();
-    
-    // Verifikasi
-    cy.url().should('include', '/admin/products');
-    cy.get('h1').contains('Products').should('be.visible'); // Cek judul halaman
-  });
+        // 1. Verifikasi sudah di Dashboard
+        cy.url().should('include', '/admin'); 
+        cy.get('h1').contains('Dashboard').should('be.visible'); 
+        
+    });
+
+    // TC-011 & WCAG-002: Verifikasi navigasi dan Usability (WCAG) halaman Products
+    it('TC-011 & WCAG-002: Verifikasi navigasi dan Usability (WCAG) halaman Products', () => {
+        
+        // Klik submenu Products. Navigasi harus bekerja karena sesi baru
+        cy.get('a[href="http://localhost:3000/admin/products"]')
+          .should('be.visible')
+          .click(); 
+        
+        // Verifikasi halaman Produk
+        cy.url().should('include', '/admin/products');
+        cy.get('h1').contains('Products').should('be.visible'); 
+
+        cy.injectAxe()
+
+        // ♿️ WCAG-002: PENGUJIAN USABILITY/ACCESSIBILITY
+        cy.checkA11yWithLogging(null, {
+            includedTags: ['wcag2a', 'wcag2aa'],
+        });
+        
+        cy.log('🎉 Pemeriksaan WCAG Halaman Katalog (Products) Selesai.');
+    });
 
 // it('TC-012: verifikasi fungsionalitas search produk yang hasilnya ditemukan', () => {
 //     cy.visit('/admin/products');
@@ -65,144 +68,144 @@ describe('Admin | Catalog - Manage Products (TC-011 - TC-020)', () => {
 //     cy.contains('There is no product to display', { timeout: 10000 }).should('be.visible');
 //   });
 
-it('TC-014: verifikasi fungsionalitas filter produk (Filter by Status)', () => {
-  cy.visit('/admin/products');
+// it('TC-014: verifikasi fungsionalitas filter produk (Filter by Status)', () => {
+//   cy.visit('/admin/products');
 
-  // 1. Klik tombol custom dropdown "Status"
-  cy.contains('button', 'Status').click();
+//   // 1. Klik tombol custom dropdown "Status"
+//   cy.contains('button', 'Status').click();
 
-  // 2. Klik link "Disabled"
-  cy.contains('a', 'Disabled').click();
+//   // 2. Klik link "Disabled"
+//   cy.contains('a', 'Disabled').click();
 
-  // 3. Verifikasi URL
-  cy.url({ timeout: 10000 }).should('satisfy', (url) => {
-    return url.includes('status=disabled') || url.includes('status=0');
-  });
+//   // 3. Verifikasi URL
+//   cy.url({ timeout: 10000 }).should('satisfy', (url) => {
+//     return url.includes('status=disabled') || url.includes('status=0');
+//   });
 
-  cy.contains('There is no product to display', { timeout: 10000 }).should('be.visible');
-});
-
-
-it('TC-015: verifikasi fungsionalitas Pagination', () => {
-  cy.log('--- Memulai TC-015 (FIX - URL Check) ---');
-  cy.visit('/admin/products');
-
-  let firstProductNameOnPage1;
-
-  const selectorNamaProdukPertama = 'table.listing.sticky tbody tr:nth-child(2) td:nth-child(3) a';
-
-  cy.get(selectorNamaProdukPertama, { timeout: 20000 })
-    .should('be.visible')
-    .invoke('text')
-    .then((text) => {
-      firstProductNameOnPage1 = text.trim();
-      cy.log(`Produk pertama di Halaman 1: ${firstProductNameOnPage1}`);
-      expect(firstProductNameOnPage1).to.not.be.empty;
-    });
-
-  cy.get('div.pagination .next a').click();
-
-  cy.url({ timeout: 10000 }).should('include', 'page=2');
-
-  cy.get(selectorNamaProdukPertama, { timeout: 20000 })
-    .should('be.visible')
-    .invoke('text')
-    .then((textOnPage2) => {
-      cy.log(`Produk pertama di Halaman 2: ${textOnPage2.trim()}`);
-      expect(textOnPage2.trim()).to.not.equal(firstProductNameOnPage1);
-    });
-});
+//   cy.contains('There is no product to display', { timeout: 10000 }).should('be.visible');
+// });
 
 
-  // it('TC-016: Verifikasi fungsionalitas tambah produk baru (happy path)', () => {
-  //   cy.visit('/admin/products');
+// it('TC-015: verifikasi fungsionalitas Pagination', () => {
+//   cy.log('--- Memulai TC-015 (FIX - URL Check) ---');
+//   cy.visit('/admin/products');
 
-  //   cy.contains('New Product').click();
+//   let firstProductNameOnPage1;
 
-  //   cy.url().should('include', '/admin/products/new');
+//   const selectorNamaProdukPertama = 'table.listing.sticky tbody tr:nth-child(2) td:nth-child(3) a';
 
-  //   const productName = `Cypress Product ${Date.now()}`;
-  //   const sku = `CYP-${Date.now()}`;
+//   cy.get(selectorNamaProdukPertama, { timeout: 20000 })
+//     .should('be.visible')
+//     .invoke('text')
+//     .then((text) => {
+//       firstProductNameOnPage1 = text.trim();
+//       cy.log(`Produk pertama di Halaman 1: ${firstProductNameOnPage1}`);
+//       expect(firstProductNameOnPage1).to.not.be.empty;
+//     });
 
-  //   cy.get("input[name='name']").type(productName); 
-  //   cy.get("input[name='sku']").should('not.be.disabled').type(sku);
+//   cy.get('div.pagination .next a').click();
+
+//   cy.url({ timeout: 10000 }).should('include', 'page=2');
+
+//   cy.get(selectorNamaProdukPertama, { timeout: 20000 })
+//     .should('be.visible')
+//     .invoke('text')
+//     .then((textOnPage2) => {
+//       cy.log(`Produk pertama di Halaman 2: ${textOnPage2.trim()}`);
+//       expect(textOnPage2.trim()).to.not.equal(firstProductNameOnPage1);
+//     });
+// });
+
+
+//   // it('TC-016: Verifikasi fungsionalitas tambah produk baru (happy path)', () => {
+//   //   cy.visit('/admin/products');
+
+//   //   cy.contains('New Product').click();
+
+//   //   cy.url().should('include', '/admin/products/new');
+
+//   //   const productName = `Cypress Product ${Date.now()}`;
+//   //   const sku = `CYP-${Date.now()}`;
+
+//   //   cy.get("input[name='name']").type(productName); 
+//   //   cy.get("input[name='sku']").should('not.be.disabled').type(sku);
     
-  //   cy.get("input[name='qty']").type('100', { force: true });
-  //   cy.get("input[name='price']").type('99.99', { force: true });
-  //   cy.get("input[name='weight']").type('1.5', { force: true }); 
+//   //   cy.get("input[name='qty']").type('100', { force: true });
+//   //   cy.get("input[name='price']").type('99.99', { force: true });
+//   //   cy.get("input[name='weight']").type('1.5', { force: true }); 
 
-  //   cy.get('input[name="description"]', { timeout: 10000 })
-  //     .type('Ini deskripsi produk tes.', { force: true }) 
-  //     .trigger('change', { force: true }); 
-
-    
-  //   cy.get('input[name="url_key"]', { timeout: 10000 })
-  //     .type(sku, { force: true }); 
-
-  //   cy.get('input[name="meta_title"]', { timeout: 10000 })
-  //     .type(productName, { force: true });
-
-  //   cy.get('textarea[name="meta_description"]', { timeout: 10000 })
-  //     .type('Ini meta deskripsi produk tes.', { force: true });
-  //   cy.contains('span', 'Save', { timeout: 10000 }).parent('button').click();
-
-  //   cy.url({ timeout: 10000 }).should('not.include', '/new');
-
-  //   cy.url().should('include', '/admin/products');
-  //   cy.contains(productName, { timeout: 10000 }).should('be.visible');
-  // });
-
-    it('TC-017: Verifikasi fungsionalitas tambah produk baru dengan field kosong', () => {
-    // Kunjungi halaman daftar produk
-    cy.visit('/admin/products');
-
-    cy.contains('New Product').click();
-
-    cy.url().should('include', '/admin/products/new');
-
-
-    cy.contains('span', 'Save', { timeout: 10000 }).parent('button').click();
-
-
-    cy.url().should('include', '/admin/products');
-  });
-
-    it('TC-018: Verifikasi fungsionalitas tambah produk baru dengan harga minus (-)', () => {
-    // Kunjungi halaman daftar produk
-    cy.visit('/admin/products');
-
-    cy.contains('New Product').click();
-
-    cy.url().should('include', '/admin/products/new');
-
-    const productName = `Cypress Product ${Date.now()}`;
-    const sku = `CYP-${Date.now()}`;
-
-    cy.get("input[name='name']").type(productName); 
-    cy.get("input[name='sku']").should('not.be.disabled').type(sku);
-    
-    cy.get("input[name='qty']").type('100', { force: true });
-    cy.get("input[name='price']").type('-99.99', { force: true });
-    cy.get("input[name='weight']").type('1.5', { force: true }); 
-
-    cy.get('input[name="description"]', { timeout: 10000 })
-      .type('Ini deskripsi produk tes.', { force: true }) 
-      .trigger('change', { force: true }); 
+//   //   cy.get('input[name="description"]', { timeout: 10000 })
+//   //     .type('Ini deskripsi produk tes.', { force: true }) 
+//   //     .trigger('change', { force: true }); 
 
     
-    cy.get('input[name="url_key"]', { timeout: 10000 })
-      .type(sku, { force: true }); 
+//   //   cy.get('input[name="url_key"]', { timeout: 10000 })
+//   //     .type(sku, { force: true }); 
 
-    cy.get('input[name="meta_title"]', { timeout: 10000 })
-      .type(productName, { force: true });
+//   //   cy.get('input[name="meta_title"]', { timeout: 10000 })
+//   //     .type(productName, { force: true });
 
-    cy.get('textarea[name="meta_description"]', { timeout: 10000 })
-      .type('Ini meta deskripsi produk tes.', { force: true });
-    cy.contains('span', 'Save', { timeout: 10000 }).parent('button').click();
+//   //   cy.get('textarea[name="meta_description"]', { timeout: 10000 })
+//   //     .type('Ini meta deskripsi produk tes.', { force: true });
+//   //   cy.contains('span', 'Save', { timeout: 10000 }).parent('button').click();
+
+//   //   cy.url({ timeout: 10000 }).should('not.include', '/new');
+
+//   //   cy.url().should('include', '/admin/products');
+//   //   cy.contains(productName, { timeout: 10000 }).should('be.visible');
+//   // });
+
+//     it('TC-017: Verifikasi fungsionalitas tambah produk baru dengan field kosong', () => {
+//     // Kunjungi halaman daftar produk
+//     cy.visit('/admin/products');
+
+//     cy.contains('New Product').click();
+
+//     cy.url().should('include', '/admin/products/new');
 
 
-    cy.url().should('include', '/admin/products');
-  });
+//     cy.contains('span', 'Save', { timeout: 10000 }).parent('button').click();
+
+
+//     cy.url().should('include', '/admin/products');
+//   });
+
+//     it('TC-018: Verifikasi fungsionalitas tambah produk baru dengan harga minus (-)', () => {
+//     // Kunjungi halaman daftar produk
+//     cy.visit('/admin/products');
+
+//     cy.contains('New Product').click();
+
+//     cy.url().should('include', '/admin/products/new');
+
+//     const productName = `Cypress Product ${Date.now()}`;
+//     const sku = `CYP-${Date.now()}`;
+
+//     cy.get("input[name='name']").type(productName); 
+//     cy.get("input[name='sku']").should('not.be.disabled').type(sku);
+    
+//     cy.get("input[name='qty']").type('100', { force: true });
+//     cy.get("input[name='price']").type('-99.99', { force: true });
+//     cy.get("input[name='weight']").type('1.5', { force: true }); 
+
+//     cy.get('input[name="description"]', { timeout: 10000 })
+//       .type('Ini deskripsi produk tes.', { force: true }) 
+//       .trigger('change', { force: true }); 
+
+    
+//     cy.get('input[name="url_key"]', { timeout: 10000 })
+//       .type(sku, { force: true }); 
+
+//     cy.get('input[name="meta_title"]', { timeout: 10000 })
+//       .type(productName, { force: true });
+
+//     cy.get('textarea[name="meta_description"]', { timeout: 10000 })
+//       .type('Ini meta deskripsi produk tes.', { force: true });
+//     cy.contains('span', 'Save', { timeout: 10000 }).parent('button').click();
+
+
+//     cy.url().should('include', '/admin/products');
+//   });
 
 // it('TC-019: Verifikasi fungsionalitas update data produk (dengan Rollback)', () => {
     

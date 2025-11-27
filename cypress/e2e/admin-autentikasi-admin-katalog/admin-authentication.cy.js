@@ -17,7 +17,32 @@ describe('Fitur: Autentikasi Admin - Kondisi Logged-Out', () => {
     beforeEach(() => {
         // Ganti '/admin/login' dengan URL halaman login admin Anda
         cy.visit('/admin/login');
+
+        cy.injectAxe();
     });
+
+
+    // ====================================================================
+    // ♿️ TC WCAG - USABILITY/ACCESSIBILITY (PENGUJIAN KUALITAS)
+    // Cukup satu test case untuk memastikan seluruh halaman Login mematuhi WCAG AA
+    // ====================================================================
+    it('WCAG-001: Memastikan Halaman Login Admin memenuhi standar Usability (WCAG AA)', () => {
+    cy.injectAxe(); 
+
+    // Menggunakan violationCallback bawaan cypress-axe untuk logging
+    const violationCallback = (violations) => {
+        cy.log('🚨 Pelanggaran WCAG Ditemukan:');
+        violations.forEach((violation) => {
+            cy.log(`[${violation.impact.toUpperCase()}] ${violation.help} - ${violation.helpUrl}`);
+        });
+    };
+
+    cy.checkA11y(null, {
+        includedTags: ['wcag2a', 'wcag2aa'],
+    }, violationCallback); // Panggil callback di sini
+    
+});
+
     
     it('TC-001: verifikasi login admin dengan email dan password yang valid', () => {
         cy.get('input[name="email"]').type('admin@email.com');

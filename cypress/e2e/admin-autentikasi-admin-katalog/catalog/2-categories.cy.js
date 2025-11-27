@@ -1,103 +1,98 @@
-// cypress/e2e/catalog/categories.cy.js
-
 describe('Admin | Catalog - Manage Categories (TC-021 - TC-030)', () => {
 
     const ADMIN_EMAIL = 'admin@email.com';
     const ADMIN_PASSWORD = '123123123'; 
 
-// Di dalam file categories.cy.js Anda, ganti fungsi createCategory:
-// Ganti fungsi createCategory di file categories.cy.js Anda
-const createCategory = (name, parentName = '') => {
-    cy.visit('/admin/categories');
-    // Klik tombol New Category
-    cy.contains('a', 'New Category').click(); 
+    // Helper function createCategory (Dibiarkan Sesuai Asli)
+    const createCategory = (name, parentName = '') => {
+        cy.visit('/admin/categories');
+        // Klik tombol New Category
+        cy.contains('a', 'New Category').click(); 
 
-    // URL KEY dibuat dari nama dan diubah menjadi format slug (lowercase, ganti spasi dengan -)
-    const urlKey = name.toLowerCase().replace(/\s+/g, '-'); 
-    const metaTitle = `Meta Title for ${name}`;
-    const metaDescription = `Meta Description for ${name} category.`;
+        // URL KEY dibuat dari nama dan diubah menjadi format slug (lowercase, ganti spasi dengan -)
+        const urlKey = name.toLowerCase().replace(/\s+/g, '-'); 
+        const metaTitle = `Meta Title for ${name}`;
+        const metaDescription = `Meta Description for ${name} category.`;
 
-    // ===================================
-    // 1. ISI FIELD WAJIB DI BAGIAN GENERAL
-    // ===================================
-    cy.log('Mengisi field Name...');
-    cy.get("input[name='name']").type(name); 
-    
-    // Asumsi Description tidak wajib, tapi jika wajib bisa diisi di sini
-
-    // Pilih Parent Category, JIKA parentName diberikan
-    if (parentName) {
-        cy.log(`Memilih Parent Category: ${parentName}`);
+        // ===================================
+        // 1. ISI FIELD WAJIB DI BAGIAN GENERAL
+        // ===================================
+        cy.log('Mengisi field Name...');
+        cy.get("input[name='name']").type(name); 
         
-        // Klik link pemicu "Select category"
-        cy.contains('a', 'Select category').click(); 
-        
-        // Tunggu ul.category-tree muncul dan klik link kategori
-        cy.get('ul.category-tree').should('be.visible').within(() => {
-            cy.contains('a', parentName).click();
-        });
-    }
+        // Pilih Parent Category, JIKA parentName diberikan
+        if (parentName) {
+            cy.log(`Memilih Parent Category: ${parentName}`);
+            
+            // Klik link pemicu "Select category"
+            cy.contains('a', 'Select category').click(); 
+            
+            // Tunggu ul.category-tree muncul dan klik link kategori
+            cy.get('ul.category-tree').should('be.visible').within(() => {
+                cy.contains('a', parentName).click();
+            });
+        }
 
-    // =========================================
-    // 2. ISI FIELD WAJIB DI BAGIAN SEO (4 KOLOM)
-    // =========================================
-    cy.log('Mengisi field SEO wajib...');
-    cy.get("input[name='url_key']").type(urlKey); // Url key
-    cy.get("input[name='meta_title']").type(metaTitle); // Meta title
-    // Meta keywords (optional, tapi diisi untuk kelengkapan)
-    cy.get("input[name='meta_keywords']").type(name.replace(/\s+/g, ', ')); 
-    cy.get("textarea[name='meta_description']").type(metaDescription); // Meta description
+        // =========================================
+        // 2. ISI FIELD WAJIB DI BAGIAN SEO (4 KOLOM)
+        // =========================================
+        cy.log('Mengisi field SEO wajib...');
+        cy.get("input[name='url_key']").type(urlKey); // Url key
+        cy.get("input[name='meta_title']").type(metaTitle); // Meta title
+        // Meta keywords (optional, tapi diisi untuk kelengkapan)
+        cy.get("input[name='meta_keywords']").type(name.replace(/\s+/g, ', ')); 
+        cy.get("textarea[name='meta_description']").type(metaDescription); // Meta description
 
-    // =========================================
-    // 3. SIMPAN
-    // =========================================
-    cy.contains('span', 'Save').parent('button').click();
-    // Verifikasi sukses
-    cy.contains('Category saved successfully!', { timeout: 10000 }).should('be.visible');
-};
-    
-    /**
-     * Login sekali sebelum semua tes di blok 'describe' ini.
-     * Menggunakan cy.session() untuk menangani autentikasi.
-     */
-// Di dalam describe block Anda, GANTI beforeEach Anda dengan ini:
-beforeEach(() => {
-    // 1. Buat atau restore sesi login
-    cy.session('adminLogin', () => {
-        cy.visit('/admin/login');
-        // Pastikan selector dan password benar
-        cy.get("input[name='email']").type('admin@email.com'); 
-        cy.get("input[name='password']").type('123123123'); // Gunakan password yang dikonfirmasi
+        // =========================================
+        // 3. SIMPAN
+        // =========================================
+        cy.contains('span', 'Save').parent('button').click();
+        // Verifikasi sukses
+        cy.contains('Category saved successfully!', { timeout: 10000 }).should('be.visible');
+    };
+    
+    Cypress.on('uncaught:exception', (err, runnable) => {
+        return false;
+    });
+  
+    // 🚨 PERBAIKAN: Mengganti cy.session dengan Hard Login (lebih stabil)
+    beforeEach(() => {
+        // HARD LOGIN: Lakukan login penuh sebelum setiap test
+        cy.visit('/admin/login'); 
+        cy.get("input[name='email']").type(ADMIN_EMAIL); 
+        cy.get("input[name='password']").type(ADMIN_PASSWORD); 
         cy.get("button[type='submit']").click();
-        
-        // Verifikasi URL setelah login (Pastikan TIDAK kembali ke /login)
-        cy.url().should('not.include', '/login'); 
+
+        // Verifikasi sudah di Dashboard dan siap
         cy.url().should('include', '/admin'); 
-    }, {
-        // Tambahkan cacheAcrossSpecs: true jika Anda ingin sesi bertahan antar file spec
-        cacheAcrossSpecs: true 
+        cy.get('h1').contains('Dashboard').should('be.visible'); 
     });
 
-    // 2. Kunjungi halaman utama Catalog (menu induk) SEBELUM SETIAP TES
-    // Ini membantu mencegah masalah 'display: none'
-    cy.visit('/admin'); // Coba langsung ke menu induk Catalog
-});
 
-
-    // ---
-    
-    // TC-021: Verifikasi akses halaman Daftar Kategori
-    it('TC-021: Verifikasi akses halaman Daftar Kategori', () => {
-        cy.visit('/admin'); // Mulai dari dashboard (dari beforeEach)
+    // TC-021 & WCAG-003: Verifikasi akses dan Usability (WCAG) halaman Categories
+    it('TC-021 & WCAG-003: Verifikasi akses dan Usability (WCAG) halaman Categories', () => {
         
-        // Klik sub menu Categories
-        cy.contains('a', 'Categories').click(); 
+        // 1. Navigasi ke Categories (pastikan menu navigasi terlihat dulu)
+        cy.contains('a', 'Categories')
+            .should('be.visible')
+            .click(); 
         
-        // Verifikasi
+        // 2. Verifikasi Navigasi
         cy.url().should('include', '/admin/categories');
-        cy.contains('h1', 'Categories').should('be.visible'); // Cek judul halaman
-        cy.get('table').should('be.visible'); // Menampilkan tabel/daftar
-        cy.contains('a', 'New Category').should('be.visible'); // Tombol terlihat
+        cy.contains('h1', 'Categories').should('be.visible');
+        cy.get('table').should('be.visible'); 
+        cy.contains('a', 'New Category').should('be.visible');
+
+        // 3. ♿️ WCAG-003: PENGUJIAN USABILITY/ACCESSIBILITY
+        // Inject Axe setelah halaman dimuat
+        cy.injectAxe(); 
+        
+        // Jalankan check A11y
+        cy.checkA11yWithLogging(null, {
+            includedTags: ['wcag2a', 'wcag2aa'],
+        });
+        
+        cy.log('🎉 Pemeriksaan WCAG Halaman Katalog (Categories) Selesai.');
     });
 
 // // TC-022: Verifikasi pembuatan kategori induk baru
