@@ -1,10 +1,10 @@
 // ***********************************************************
-// File: cypress/support/e2e.ts (Final Version)
+// File: cypress/support/e2e.ts
 // ***********************************************************
 
+// Import commands.js using ES2015 syntax:
 import 'cypress-axe';
-import './commands' 
-// Catatan: index.d.ts baru yang Anda buat akan mengatasi error di bawah
+import './commands'
 
 // --- PENYESUAIAN TAMBAHAN UNCAUGHT EXCEPTION ---
 Cypress.on('uncaught:exception', (err, runnable) => {
@@ -17,14 +17,13 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 
 // =========================================================
-// INTEGRASI WCAG/ACCESSIBILITY (CUSTOM LOGGING COMMAND)
+// ✅ INTEGRASI WCAG/ACCESSIBILITY (CYPRESS-AXE)
 // =========================================================
 
-// Kita menggunakan tipe 'any' untuk stabilitas maksimum
-Cypress.Commands.add('checkA11yWithLogging', (context: any, options: any) => {
+Cypress.Commands.overwrite('checkA11y', (originalFn, context, options, violationCallback) => {
     
-    // Violation Callback (untuk logging)
-    const customViolationCallback = (violations) => {
+    // 1. Kita simpan logika logging ke dalam sebuah fungsi (callback)
+    const loggerTampilan = (violations) => {
         if (violations && violations.length > 0) {
             cy.log('======================================================');
             cy.log('🚨 WCAG VIOLATIONS DITEMUKAN:');
@@ -32,19 +31,31 @@ Cypress.Commands.add('checkA11yWithLogging', (context: any, options: any) => {
             cy.log('======================================================');
             
             violations.forEach(v => {
-                cy.log(`--- PELANGGARAN: [${v.impact ? v.impact.toUpperCase() : 'UNKNOWN'}] ${v.id} ---`);
+                // Menggunakan v.impact, v.id, dll sesuai kode asli teman Anda
+                const impactText = v.impact ? v.impact.toUpperCase() : 'UNKNOWN';
+                cy.log(`--- PELANGGARAN: [${impactText}] ${v.id} ---`);
                 cy.log(`Bantuan: ${v.helpUrl}`);
                 cy.log(`Deskripsi Masalah: ${v.help}`);
                 
                 v.nodes.forEach(node => {
-                    cy.log(`  > Elemen Melanggar (HTML): ${node.html.substring(0, 100)}...`);
+                    // Mencegah error jika html kosong
+                    const htmlText = node.html ? node.html.substring(0, 100) : 'Element not found';
+                    cy.log(`  > Elemen Melanggar (HTML): ${htmlText}...`);
                     cy.log(`  > Cara Memperbaiki: ${node.failureSummary}`);
                 });
                 cy.log('------------------------------------------------------');
             });
+        } else {
+             cy.log('🎉 WCAG Check Passed! Tidak ada pelanggaran yang ditemukan.');
         }
     };
 
-    // Panggil perintah checkA11y bawaan dengan violationCallback
-    return cy.checkA11y(context, options, customViolationCallback);
+    // 2. Tentukan callback mana yang dipakai
+    // Jika di script test ada callback khusus, pakai itu. Jika tidak, pakai loggerTampilan di atas.
+    const finalCallback = violationCallback || loggerTampilan;
+
+    // 3. PANGGIL FUNGSI ASLI (FIXED)
+    // Perbaikan: Jangan gunakan .then(), tapi masukkan callback sebagai parameter ke-3/4.
+    // Ini adalah cara resmi cypress-axe agar tidak crash "undefined".
+    originalFn(context, options, finalCallback);
 });
