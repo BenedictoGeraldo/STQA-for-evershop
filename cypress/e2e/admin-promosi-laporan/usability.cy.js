@@ -19,7 +19,7 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
     cy.on('uncaught:exception', () => false);
   });
 
-  it('TC-43 - Dashboard WCAG', () => {
+  it('TC-42 - Dashboard WCAG', () => {
     cy.wait(1000);
     cy.injectAxe();
     cy.checkA11y(null, {
@@ -28,10 +28,10 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
         values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],  // Tambah 2.1
       },
     });
-    cy.log('✅ TC-43 Completed');
+    cy.log('✅ TC-42 Completed');
   });
 
-  it('TC-44 - Coupon List WCAG', () => {
+  it('TC-43 - Coupon List WCAG', () => {
     cy.visit(baseUrl + '/coupons');
     cy.wait(1000);
     cy.injectAxe();
@@ -42,10 +42,10 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
         values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
       },
     });
-    cy.log('✅ TC-44 Completed');
+    cy.log('✅ TC-43 Completed');
   });
 
-  it('TC-45 - New Coupon WCAG', () => {
+  it('TC-44 - New Coupon WCAG', () => {
     cy.visit(baseUrl + '/coupon/new');
     cy.wait(1000);
     cy.injectAxe();
@@ -56,11 +56,11 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
         values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
       },
     });
-    cy.log('✅ TC-45 Completed');
+    cy.log('✅ TC-44 Completed');
   });
 
   // BONUS: Keyboard test seperti teman (TC-46)
-  it('TC-46 - Keyboard Navigation Form New Coupon', () => {
+  it('TC-45 - Keyboard Navigation Form New Coupon', () => {
     cy.visit(baseUrl + '/coupon/new');
     cy.wait(1000);
 
@@ -74,7 +74,7 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
       .focus()
       .should('have.focus');
 
-    cy.log('✅ TC-46 Completed: Keyboard navigation OK');
+    cy.log('✅ TC-45 Completed: Keyboard navigation OK');
   });
 
 });
