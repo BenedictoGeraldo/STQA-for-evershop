@@ -7,9 +7,8 @@ describe('Skenario Cart Negative & Boundary (TC-026, TC-027, TC-028)', () => {
     
     cy.on('uncaught:exception', () => false);
 
-    // --- SETUP INTERCEPT ---
+    // --- SETUP INTERCEPT (DIPISAH AGAR LEBIH AMAN) ---
     cy.intercept('POST', '**/api/cart/mine/items').as('addToCart');
-    // Menangkap method PATCH dengan wildcard di tengah untuk UUID
     cy.intercept('PATCH', '**/api/cart/**/items/*').as('updateQty'); 
     cy.intercept('POST', '**/coupons').as('applyCoupon');
   });
