@@ -109,30 +109,13 @@ describe('Skenario Reliability Testing (TC-023 s/d TC-025)', () => {
 
   // --- TC-024: Stabilitas Klik Beruntun (Place Order) ---
   it('TC-024: Sistem mencegah duplikasi order saat tombol Place Order diklik berkali-kali', () => {
-    // Setup Full Checkout State
+    // Setup Full Checkout State (Login + Isi Alamat Normal)
     cy.visit('/checkout');
-    
-    // --- CONDITIONAL LOGIN (SOLUSI ERROR) ---
-    // Cek apakah ada tombol login?
-    cy.get('body').then(($body) => {
-        // Jika form login (contact.email) atau tombol login terlihat, berarti BELUM login
-        if ($body.find('input[name="contact.email"]').length > 0) {
-             cy.log('User belum login, melakukan proses login...');
-             
-             // Cari link login jika form tertutup (Accordion)
-             if ($body.find('button, a').filter(':contains("Log in")').length > 0) {
-                 cy.contains('button, a', 'Log in').click();
-             }
-             
-             cy.get('input[name="contact.email"]').clear().type(userEmail);
-             // Cek field password muncul atau tidak (kadang hidden)
-             cy.get('input[name="contact.password"]').should('be.visible').clear().type(userPass);
-             cy.get('button').contains(/^Log in$/).click();
-             cy.wait(2000);
-        } else {
-             cy.log('User SUDAH login, lanjut ke pengisian alamat.');
-        }
-    });
+    cy.contains('button, a', 'Log in').click();
+    cy.get('input[name="contact.email"]').type(userEmail);
+    cy.get('input[name="contact.password"]').type(userPass);
+    cy.get('button').contains(/^Log in$/).click();
+    cy.wait(2000);
 
     // Isi Alamat Normal
     cy.get('input[name="shippingAddress.full_name"]').clear().type(normalAddress.fullName);

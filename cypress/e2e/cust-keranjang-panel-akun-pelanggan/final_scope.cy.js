@@ -19,13 +19,11 @@ describe('Final Scope Front Store: Checkout & Portability (TC-031, TC-046, TC-04
     cy.clearLocalStorage();
     cy.on('uncaught:exception', () => false);
 
-    // --- FIX INTERCEPT ---
-    // Dipisah barisnya dan pastikan tidak ada chaining yang menggantung
+    // INTERCEPT
     cy.intercept('POST', '**/login').as('loginReq');
     cy.intercept('POST', '**/api/cart/mine/items').as('addToCart');
-    
-    // Intercept shippingMethods dipisah barisnya
     cy.intercept('GET', '**/shippingMethods').as('getShipping'); 
+    // Note: Pastikan intercept ini sesuai dengan temuan 'GET' di sesi checkout sebelumnya
   });
 
   // --- TC-031: Checkout - Kode Pos Pendek (Negative) ---

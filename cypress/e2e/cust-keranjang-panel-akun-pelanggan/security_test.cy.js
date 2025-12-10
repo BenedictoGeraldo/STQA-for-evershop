@@ -11,7 +11,6 @@ describe('Skenario Pengujian Keamanan (TC-016 & TC-017)', () => {
   // --- TC-016: Proteksi Akses (Unauthenticated) ---
   // Test ini tidak butuh login di awal, jadi dia berdiri sendiri
   it('TC-016: User yang belum login harus di-redirect ke Login saat akses /account', () => {
-    cy.on('uncaught:exception', () => false);
     // 1. Hapus Sesi
     cy.clearCookies();
     cy.clearLocalStorage();
@@ -30,7 +29,7 @@ describe('Skenario Pengujian Keamanan (TC-016 & TC-017)', () => {
 
   // --- TC-017: Validasi Input XSS (Stored XSS) ---
   it('TC-017: Sistem harus menolak atau mensterilkan (Sanitize) input script berbahaya', () => {
-    cy.on('uncaught:exception', () => false);
+    
     // A. SETUP: Login & Paksa Masuk Account (FIXED FLOW)
     cy.visit('/account/login');
     cy.get('input[name="email"]').type(userEmail);
