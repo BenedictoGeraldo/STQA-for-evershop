@@ -10,8 +10,6 @@ Dokumentasi lengkap untuk menjalankan automated testing menggunakan Cypress pada
 - [Instalasi](#instalasi)
 - [Menjalankan Aplikasi](#menjalankan-aplikasi)
 - [Menjalankan Testing](#menjalankan-testing)
-- [Struktur Test](#struktur-test)
-- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -74,6 +72,20 @@ Buka browser dan akses:
 - **Admin Panel**: http://localhost:3000/admin
 
 Jika halaman terbuka dengan baik, aplikasi sudah siap untuk di-test.
+
+### Membuat Akun Admin (Wajib untuk Testing Admin)
+
+⚠️ **PENTING:** Sebelum menjalankan test admin, Anda harus membuat akun admin terlebih dahulu karena tidak ada fitur registrasi admin melalui UI.
+
+```powershell
+docker compose exec app npm run user:create -- --email "admin@email.com" --password "123123123" --name "admin"
+```
+
+**Kredensial Admin untuk Testing:**
+- **Email**: `admin@email.com`
+- **Password**: `123123123`
+
+Sekarang Anda dapat login ke admin panel di http://localhost:3000/admin dengan kredensial di atas.
 
 ### Stop Aplikasi
 
