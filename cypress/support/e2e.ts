@@ -8,14 +8,13 @@ import './commands'
 
 // --- PENYESUAIAN TAMBAHAN UNCAUGHT EXCEPTION ---
 Cypress.on('uncaught:exception', (err, runnable) => {
-  if (err.message.includes('Something wrong. Please try again')) {
-    cy.log('Mengabaikan error aplikasi yang sudah diketahui: Something wrong');
-    return false;
-  }
-  return true;
+  // Abaikan error aplikasi "Something wrong. Please try again"
+  // Jangan gunakan cy.log() atau console.log() di sini karena menyebabkan konflik
+  if (err.message.includes('Something wrong. Please try again')) {
+    return false;
+  }
+  return true;
 });
-
-
 // =========================================================
 // ✅ INTEGRASI WCAG/ACCESSIBILITY (CYPRESS-AXE)
 // =========================================================
