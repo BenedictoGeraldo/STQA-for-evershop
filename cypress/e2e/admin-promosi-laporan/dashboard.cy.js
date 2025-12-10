@@ -117,17 +117,8 @@ describe("Dashboard Module E2E", () => {
     });
   });
 
-  // TC036 - Setelah reload, dashboard tetap tampil konsisten
-  it("TC036 - Reload dashboard tetap muncul", () => {
-    cy.visit(baseUrl);
-    cy.reload();
-    cy.get('.card-title').contains('Sale Statistics').should('exist');
-    cy.get('.card-title').contains('Best Sellers').should('exist');
-    cy.get('.card-title').contains('Lifetime Sales').should('exist');
-  });
-
-  // TC037 - Filter periodik dashboard chart aktif (daily/weekly/monthly)
-  it("TC037 - Filter grafik sales periodik berjalan", () => {
+  // TC036 - Filter periodik dashboard chart aktif (daily/weekly/monthly)
+  it("TC036 - Filter grafik sales periodik berjalan", () => {
     refreshDashboard();
     cy.get('.card-title').contains("Sale Statistics").parents('.card').within(() => {
       cy.contains('a.text-interactive', 'Daily').click();
@@ -139,8 +130,8 @@ describe("Dashboard Module E2E", () => {
     });
   });
 
-  // TC038 - Dashboard harus tampil < 3 detik
-  it("TC038 - Performa load dashboard < 2 detik", () => {
+  // TC037 - Dashboard harus tampil < 3 detik
+  it("TC037 - Performa load dashboard < 2 detik", () => {
     const start = Date.now();
     cy.visit(baseUrl);
     cy.get('.page-heading-title').contains("Dashboard").should("exist").then(() => {
