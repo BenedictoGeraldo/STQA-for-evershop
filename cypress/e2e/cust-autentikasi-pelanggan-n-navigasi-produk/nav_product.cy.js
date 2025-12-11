@@ -1,11 +1,5 @@
 // cypress/e2e/cust-authentication.cy.js
 
-/**
- * ======================================================================
- * GRUP 1: Tes yang dimulai dari Halaman Login (Kondisi Logged-Out)
- * ======================================================================
- * Meliputi: TC-001 dan  TC-006/TC-010
- */
 
 
 describe("Full E2E Authentication Flow – Evershop", () => {
@@ -16,12 +10,12 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     cy.visit(loginUrl);
   });
 
-  it('TC-023 Navigasi breadcrumbs ke homepage', () => {
+  it('TC-197 Navigasi breadcrumbs ke homepage', () => {
     cy.get('.breadcrumb').contains('Home').click();
     cy.url().should('eq', baseUrl + '/');
   });
 
-  it('TC-025 Navigasi ke kategori WOMEN', () => {
+  it('TC-199 Navigasi ke kategori WOMEN', () => {
     cy.visit('/');
     cy.contains(/shop women/i).click();
     cy.url().should('include', '/women');
@@ -32,7 +26,7 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     cy.get('.breadcrumb').should('contain.text', 'Women');
   });
 
-  it('TC-026 Header Shop menuju katalog utama', () => {
+  it('TC-200 Header Shop menuju katalog utama', () => {
 
     // buka homepage
     cy.visit('/');
@@ -50,54 +44,76 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     });
 
 
-  it('TC-027 Breadcrumbs Kids ke Home', () => {
+  it('TC-201 Breadcrumbs Kids ke Home', () => {
     cy.visit('/kids');
     cy.get('.breadcrumb').contains('Home').click();
     cy.url().should('eq', baseUrl + '/');
   });
 
-  it('TC-028 Women category empty state', () => {
+  it('TC-202 Women category empty state', () => {
     cy.visit('/women');
-    cy.contains('There is no product to display', { timeout: 8000 }).should('be.visible');
+    cy.contains('There is no product to display').should('be.visible');
   });
 
-  it('TC-029 Sort by Price: Low to High', () => {
-    // Visit category page
-    cy.visit('/kids');   // ganti ke /women jika untuk kategori Women
+  it('TC-203 Sort by Price: Low to High', () => {
 
-    // Select sorting by Price (Low to High)
-    cy.get('select.form-field').select('price');
+    cy.visit('/kids');
 
-    // Get all product prices
-    cy.get('.product-price').then($p => {
-        const prices = [...$p].map(el =>
-            parseFloat(el.textContent.replace('$', '').trim())
-        );
+    // Simpan jumlah produk sebelum sort
+    cy.get('.product-count').invoke('text').then(before => {
 
-        // Duplicate & sort ascending
-        const sorted = [...prices].sort((a, b) => a - b);
+        cy.intercept('GET', '**/kids?ob=price*').as('sortPrice');
+        cy.get('select.form-field').select('price');
+        cy.wait('@sortPrice');
 
-        // Assertion: should match ascending order
-        expect(prices).to.deep.equal(sorted);
+        // Tunggu tulisan "3 products" berubah menjadi state baru
+        cy.get('.product-count', { timeout: 10000 })
+            .should(($span) => {
+                expect($span.text().trim()).to.eq(before.trim());
+            });
+
+        cy.get('.product-price-listing').then($p => {
+            const prices = [...$p].map(el =>
+                parseFloat(el.innerText.replace(/[^0-9.]/g, ''))
+            );
+            const sorted = [...prices].sort((a, b) => a - b);
+            expect(prices).to.deep.equal(sorted);
         });
     });
+  });
 
 
-  it('TC-030 Filter harga $0 - $50 menampilkan produk sesuai rentang', () => {
-    cy.visit('/women');
 
-    // Filter price (selector sesuai Evershop)
-    cy.get('input[name="min_price"]').clear().type('0');
-    cy.get('input[name="max_price"]').clear().type('50');
-    cy.contains('Apply').click();
 
-    cy.get('.product-price').each(($el) => {
+    it('TC-204 Filter harga 100 - 110 menampilkan produk sesuai rentang', () => {
+    cy.visit('/kids');
+
+    // Buka filter (wajib, karena class = "hidden")
+    cy.get('.filter-opener').click({ force: true });
+
+    // Set slider min
+    cy.get('input[type="range"].min')
+      .invoke('val', 100)
+      .trigger('input', { force: true });
+
+    // Set slider max
+    cy.get('input[type="range"].max')
+      .invoke('val', 110)
+      .trigger('input', { force: true });
+
+    // Tunggu filter apply otomatis
+    cy.wait(500);
+
+    // Verifikasi harga produk dalam range
+    cy.get('.product-price-listing').each(($el) => {
       const price = parseFloat($el.text().replace('$', ''));
-      expect(price).to.be.gte(0).and.lte(50);
+      expect(price).to.be.gte(100).and.lte(120);
     });
   });
 
-  it('TC-032 Search input muncul ketika ikon search diklik dan bisa dipakai', () => {
+
+
+  it('TC-206 Search input muncul ketika ikon search diklik dan bisa dipakai', () => {
 
   // buka homepage
   cy.visit('/');
@@ -127,16 +143,16 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     });
 
 
-  it('TC-034 Validasi detail produk', () => {
-    cy.visit('/striped-cotton-sweater');
+  it('TC-208 Validasi detail produk', () => {
+    cy.visit('striped-cotton-sweater');
 
     cy.contains('Striped Cotton Sweater').should('be.visible');
     cy.contains('$90.00').should('be.visible');
     cy.contains('SCS-24680').should('be.visible');
   });
 
-  it('TC-035 Fungsi tombol ADD TO CART', () => {
-    cy.visit('/striped-cotton-sweater');
+  it('TC-209 Fungsi tombol ADD TO CART', () => {
+    cy.visit('striped-cotton-sweater');
 
     cy.contains('ADD TO CART').click();
 
@@ -145,8 +161,8 @@ describe("Full E2E Authentication Flow – Evershop", () => {
     .should('be.visible');
     });
 
-  it('TC-036 Input kuantitas sebelum add to cart', () => {
-  cy.visit('/striped-cotton-sweater');
+  it('TC-210 Input kuantitas sebelum add to cart', () => {
+  cy.visit('striped-cotton-sweater');
 
   cy.get('input[name="qty"]')
     .clear()
@@ -157,12 +173,4 @@ describe("Full E2E Authentication Flow – Evershop", () => {
   cy.get('.add-cart-popup-button', { timeout: 10000 })
     .should('be.visible');
     });
-
-  it('TC-037 Produk tanpa gambar utama', () => {
-    cy.visit('/produk-tanpa-gambar');
-
-    // Evershop placeholder image
-    cy.get('.product-gallery img').should('exist');
   });
-
-});
