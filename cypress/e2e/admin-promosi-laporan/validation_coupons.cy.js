@@ -16,7 +16,7 @@ it("TC069 - Menambah kupon tanpa mengisi Minimum purchase amount dan validasi ku
   cy.get('textarea[name="description"]').type('Without Minimum');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to entire order').click();
   cy.wait(500);
 
@@ -77,7 +77,7 @@ it("TC070 - Menambah kupon dengan mengisi Minimum purchase amount 100 $ dan vali
   cy.get('textarea[name="description"]').type('Minimal 100 $');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to entire order').click();
   cy.get('input[name="condition[order_total]"]').type('100');
   cy.wait(500);
@@ -135,7 +135,7 @@ it("TC071 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 2 dan va
   cy.get('textarea[name="description"]').type('2 QTY Valid');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to entire order').click();
   cy.get('input[name="condition[order_qty]"]').type('2');
   cy.wait(500);
@@ -198,7 +198,7 @@ it("TC072 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 3 dan va
   cy.get('textarea[name="description"]').type('3 QTY Invalid');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to entire order').click();
   cy.get('input[name="condition[order_qty]"]').type('3');
   cy.wait(500);
@@ -255,7 +255,7 @@ it("TC073 - Menambah kupon dengan tipe Fixed discount to specific products lalu 
   cy.get('textarea[name="description"]').type('Diskon 20 persen');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to specific products').click();
 
   cy.get('.pl-4').contains('Add product').click();
@@ -364,7 +364,7 @@ it("TC075 - Menambah kupon untuk user tertentu dan validasi kupon (Valid)", () =
   cy.get('textarea[name="description"]').type('Khusus user tertentu');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to entire order').click();
   cy.get('input[name="user_condition[emails]"]').type('user@email.com');
   cy.wait(500);
@@ -463,7 +463,7 @@ it("TC077 - Menambah kupon tanpa user tertentu dan validasi kupon", () => {
   cy.get('textarea[name="description"]').type('Tanpa User tertentu');
   cy.get('input[name="discount_amount"]').type('20');
   cy.get('input[name="start_date"]').type('2025-11-21', { force: true });
-  cy.get('input[name="end_date"]').type('2025-11-30', { force: true });
+  cy.get('input[name="end_date"]').type('2026-11-30', { force: true });
   cy.contains('label', 'Fixed discount to entire order').click();
   cy.wait(500);
 
