@@ -1,10 +1,9 @@
 /// <reference types="cypress" />
-
 const baseUrl = "http://localhost:3000/admin";
 const loginEmail = "admin@email.com";
 const loginPass = "123123123";
 
-it("TC013 - Menambah kupon tanpa mengisi Minimum purchase amount dan validasi kupon", () => {
+it("TC069 - Menambah kupon tanpa mengisi Minimum purchase amount dan validasi kupon", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);
@@ -65,7 +64,7 @@ it("TC013 - Menambah kupon tanpa mengisi Minimum purchase amount dan validasi ku
   cy.wait(500);
 });
 
-it("TC014 - Menambah kupon dengan mengisi Minimum purchase amount 100 $ dan validasi kupon", () => {
+it("TC070 - Menambah kupon dengan mengisi Minimum purchase amount 100 $ dan validasi kupon", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);
@@ -123,7 +122,7 @@ it("TC014 - Menambah kupon dengan mengisi Minimum purchase amount 100 $ dan vali
   cy.wait(500);
 });
 
-it("TC015 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 2 dan validasi kupon", () => {
+it("TC071 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 2 dan validasi kupon", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);
@@ -186,7 +185,7 @@ it("TC015 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 2 dan va
   cy.wait(500);
 });
 
-it("TC016 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 3 dan validasi kupon", () => {
+it("TC072 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 3 dan validasi kupon", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);
@@ -243,7 +242,7 @@ it("TC016 - Menambah kupon dengan mengisi Minimum purchase qty sebanyak 3 dan va
   cy.wait(500);
 });
 
-it("TC017 - Menambah kupon dengan tipe Fixed discount to specific products lalu digunakan user", () => {
+it("TC073 - Menambah kupon dengan tipe Fixed discount to specific products lalu digunakan user", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);
@@ -277,7 +276,7 @@ it("TC017 - Menambah kupon dengan tipe Fixed discount to specific products lalu 
   cy.get('input[name="target_products[maxQty]"]').clear().type('2');
   cy.contains('button', 'Save', { timeout: 10000 }).click();
 
-  cy.wait(1000); // tunggu backend proses
+  cy.wait(1000);
   cy.visit(baseUrl + '/coupons');
   cy.reload();
   cy.wait(500);
@@ -319,7 +318,7 @@ it("TC017 - Menambah kupon dengan tipe Fixed discount to specific products lalu 
   cy.wait(500);
 });
 
-it("TC018 - Kupon fixed spesifik produk tidak berlaku di kategori selain Men", () => {
+it("TC074 - Kupon fixed spesifik produk tidak berlaku di kategori selain Men", () => {
   cy.visit('http://localhost:3000/account/login');
   cy.get('input[name="email"]').clear().type('user@email.com');
   cy.get('input[name="password"]').type('123123123');
@@ -352,7 +351,7 @@ it("TC018 - Kupon fixed spesifik produk tidak berlaku di kategori selain Men", (
   cy.wait(500);
 });
 
-it("TC019 - Menambah kupon untuk user tertentu dan validasi kupon (Valid)", () => {
+it("TC075 - Menambah kupon untuk user tertentu dan validasi kupon (Valid)", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);
@@ -417,7 +416,7 @@ it("TC019 - Menambah kupon untuk user tertentu dan validasi kupon (Valid)", () =
   cy.url().should('not.include', '/account');
 });
 
-it("TC020 - Menambah kupon untuk user tertentu dan validasi kupon (Invalid)", () => {
+it("TC076 - Menambah kupon untuk user tertentu dan validasi kupon (Invalid)", () => {
   cy.visit('http://localhost:3000/account/login');
   cy.get('input[name="email"]').clear().type('user2@email.com');
   cy.get('input[name="password"]').type('123123123');
@@ -451,7 +450,7 @@ it("TC020 - Menambah kupon untuk user tertentu dan validasi kupon (Invalid)", ()
   cy.url().should('not.include', '/account');
 });
 
-it("TC021 - Menambah kupon tanpa user tertentu dan validasi kupon", () => {
+it("TC077 - Menambah kupon tanpa user tertentu dan validasi kupon", () => {
   cy.visit(baseUrl + "/login");
   cy.get('input[name="email"]').type(loginEmail);
   cy.get('input[name="password"]').type(loginPass);

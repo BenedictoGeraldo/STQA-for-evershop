@@ -12,14 +12,13 @@ function adminLogin() {
 }
 
 describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
-
   beforeEach(() => {
     adminLogin();
     // Tambah ini dari teman (untuk error handling lebih robust)
     cy.on('uncaught:exception', () => false);
   });
 
-  it('TC-43 - Dashboard WCAG', () => {
+  it('TC-98 - Dashboard WCAG', () => {
     cy.wait(1000);
     cy.injectAxe();
     cy.checkA11y(null, {
@@ -28,10 +27,10 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
         values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],  // Tambah 2.1
       },
     });
-    cy.log('✅ TC-43 Completed');
+    cy.log('✅ TC-98 Completed');
   });
 
-  it('TC-44 - Coupon List WCAG', () => {
+  it('TC-99 - Coupon List WCAG', () => {
     cy.visit(baseUrl + '/coupons');
     cy.wait(1000);
     cy.injectAxe();
@@ -42,10 +41,10 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
         values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
       },
     });
-    cy.log('✅ TC-44 Completed');
+    cy.log('✅ TC-99 Completed');
   });
 
-  it('TC-45 - New Coupon WCAG', () => {
+  it('TC-100 - New Coupon WCAG', () => {
     cy.visit(baseUrl + '/coupon/new');
     cy.wait(1000);
     cy.injectAxe();
@@ -56,14 +55,12 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
         values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
       },
     });
-    cy.log('✅ TC-45 Completed');
+    cy.log('✅ TC-100 Completed');
   });
 
-  // BONUS: Keyboard test seperti teman (TC-46)
-  it('TC-46 - Keyboard Navigation Form New Coupon', () => {
+  it('TC-101 - Keyboard Navigation Form New Coupon', () => {
     cy.visit(baseUrl + '/coupon/new');
     cy.wait(1000);
-
     // Test fokus pada field penting
     cy.get('input[name="coupon"]')
       .should('not.have.attr', 'tabindex', '-1')
@@ -74,7 +71,6 @@ describe("WCAG Usability Testing - Dashboard & Coupon Admin", () => {
       .focus()
       .should('have.focus');
 
-    cy.log('✅ TC-46 Completed: Keyboard navigation OK');
+    cy.log('✅ TC-101 Completed: Keyboard navigation OK');
   });
-
 });
