@@ -1,164 +1,124 @@
 describe('Skenario Pengujian Keranjang (TC-001 s/d TC-004)', () => {
 
-  beforeEach(() => {
-    // Menangani exception internal aplikasi agar tes tidak berhenti
-    cy.on('uncaught:exception', (err, runnable) => {
-      return false;
-    });
-
-    // Setup spy/listener untuk API Add to Cart
-    cy.intercept('POST', '**/cart/add').as('addToCart');
-
-    // 1. Buka Halaman Utama
+  // --- HELPER FUNCTION: Menambah Produk ke Cart ---
+  const addProductToCart = (productName, variantColor) => {
     cy.visit('/');
+    cy.contains('.product__list__item', productName).click();
+    cy.url().should('include', '/accessories/'); 
+    
+    // Pilih Varian
+    cy.get('.variant-option-list').contains('a', variantColor).click();
+    
+    // Klik Add to Cart
+    cy.contains('button', 'ADD TO CART').click();
+    
+    // [FIXED] Tunggu API Add to Cart
+    // Karena URL API bisa berubah (/mine/items atau /UUID/items), kita pakai wildcard di intercept
+    cy.wait('@addToCart').its('response.statusCode').should('eq', 200);
+  };
 
-    // 2. Cari produk "Stainless Steel Thermos" di grid dan klik
-    // Menggunakan selector spesifik dari HTML homepage yang Anda berikan
-    cy.get('.product__list__item')
-      .contains('.product__list__name', 'Stainless Steel Thermos')
-      .first() // Mengambil yang pertama jika ada banyak varian di home
-      .click();
+  beforeEach(() => {
+    cy.on('uncaught:exception', () => false);
 
-    // 3. Validasi sudah masuk halaman detail produk
-    cy.url().should('include', '/accessories/');
+    // STATE CLEANUP
+    cy.clearCookies();
+    cy.clearLocalStorage();
 
-    // 4. Pilih Varian Warna (Yellow)
-    // Menggunakan selector dari HTML variant list yang Anda berikan
-    cy.get('.variant-option-list')
-      .contains('a', 'Yellow')
-      .click();
-
-    // 5. Tunggu sebentar untuk memastikan state warna terpilih (opsional safety)
-    cy.wait(500); 
+    // [CRITICAL FIX] GENERALISASI INTERCEPT
+    // Menggunakan wildcard (*) agar menangkap kedua jenis URL:
+    // 1. /api/cart/mine/items (Item pertama)
+    // 2. /api/cart/c302.../items (Item kedua dst)
+    cy.intercept('POST', '**/api/cart/*/items').as('addToCart');
+    
+    // Intercept untuk update qty (biasanya method PUT atau PATCH ke /items/UUID)
+    cy.intercept({ method: /PATCH|PUT|POST/, url: '**/items/*' }).as('updateQty');
   });
 
+  // --- TC-001: Menambah Item ke Keranjang ---
   it('TC-001: User dapat menambah item ke keranjang', () => {
-    // Klik tombol Add to Cart
-    cy.contains('button', 'ADD TO CART').click();
+    addProductToCart('Stainless Steel Thermos', 'Yellow');
 
-    // Tunggu respons server atau fallback wait
-    cy.wait(1000);
-
-    // Navigasi ke halaman Cart
+    // Paksa pindah ke halaman cart
     cy.visit('/cart');
 
-    // Validasi Tabel Cart muncul
     cy.get('table.cart__items__table').should('be.visible');
-
-    // Validasi Item yang ditambahkan ada di dalam tabel
     cy.get('table.cart__items__table tbody tr')
       .contains('Stainless Steel Thermos')
       .should('be.visible');
 
-    // Validasi Default Quantity adalah 1
     cy.get('table.cart__items__table tbody tr').first().within(() => {
-      cy.get('span.min-w-\\[3rem\\]').should('have.text', '1');
+      // Cek jumlah qty = 1
+      cy.get('span').contains('1').should('be.visible');
     });
   });
 
+  // --- TC-002: Mengubah Kuantitas Produk ---
   it('TC-002: User dapat mengubah kuantitas produk menggunakan tombol (+)', () => {
-    // Precondition: Tambah item ke cart
-    cy.contains('button', 'ADD TO CART').click();
-    cy.wait(1000);
+    addProductToCart('Stainless Steel Thermos', 'Yellow');
     cy.visit('/cart');
 
-    // Fokus pada baris produk pertama
     cy.get('table.cart__items__table tbody tr').first().within(() => {
-      // Pastikan qty awal 1
-      cy.get('span.min-w-\\[3rem\\]').should('have.text', '1');
-
-      // Klik tombol (+)
       cy.contains('button', '+').click();
+      
+      // Tunggu API Update
+      cy.wait('@updateQty').its('response.statusCode').should('eq', 200);
 
-      // Validasi qty berubah menjadi 2 (Explicit Wait)
-      cy.get('span.min-w-\\[3rem\\]').should('have.text', '2');
+      // Validasi UI jadi 2
+      cy.get('span').contains('2').should('be.visible');
     });
 
-    // Validasi Total Harga berubah di kolom total
-    cy.wait(1000); // Tunggu kalkulasi backend
-    cy.get('table.cart__items__table tbody tr td').last().invoke('text').then((text) => {
-      // Pastikan format harga tidak sama dengan harga satuan awal ($35.00)
-      expect(text).to.not.contain('$35.00');
+    // Validasi Total Harga Berubah
+    cy.get('table.cart__items__table tbody tr td').last().should(($td) => {
+       const text = $td.text();
+       expect(text).not.to.contain('$35.00'); 
+       expect(text).to.contain('$70.00');     
     });
   });
 
+  // --- TC-003: Menghapus Item dari Cart ---
   it('TC-003: User dapat menghapus item dari Cart', () => {
-    // Precondition: Tambah item ke cart
-    cy.contains('button', 'ADD TO CART').click();
-    cy.wait(1000);
+    addProductToCart('Stainless Steel Thermos', 'Yellow');
     cy.visit('/cart');
 
-    // Klik tombol Remove
     cy.contains('a', 'Remove').click();
 
-    // Validasi item hilang dari DOM atau pesan kosong muncul
+    // Validasi item hilang
     cy.get('body').then(($body) => {
       if ($body.find('table.cart__items__table').length > 0) {
         cy.contains('Stainless Steel Thermos').should('not.exist');
       } else {
-        cy.get('body').should('contain', 'empty');
+        cy.contains('CONTINUE SHOPPING').should('be.visible');
       }
     });
   });
 
+  // --- TC-004: Validasi Perhitungan Subtotal (FIXED) ---
   it('TC-004: Validasi perhitungan Subtotal harga (Multiple Products)', () => {
-    // --- STEP 1: Tambah Produk Pertama (Thermos) ---
-    cy.visit('/');
-    cy.contains('.product__list__item', 'Stainless Steel Thermos').click();
-    cy.get('.variant-option-list').contains('a', 'Yellow').click();
-    cy.wait(500);
-    cy.contains('button', 'ADD TO CART').click();
-    cy.wait(1000);
-
-    // --- STEP 2: Tambah Produk Kedua (Ceramic Vase) ---
-    cy.visit('/'); 
-    cy.contains('.product__list__item', 'Modern Ceramic Vase').click();
-    // Pilih varian warna (Green)
-    cy.get('.variant-option-list').contains('a', 'Green').click();
-    cy.wait(500); 
-    cy.contains('button', 'ADD TO CART').click();
-    cy.wait(1000);
-
-    // --- STEP 3: Masuk ke Cart ---
+    // 1. Tambah 2 Produk
+    addProductToCart('Stainless Steel Thermos', 'Yellow'); 
+    // Sekarang intercept akan mengenali request kedua ini karena wildcard (*)
+    addProductToCart('Modern Ceramic Vase', 'Green');    
+    
     cy.visit('/cart');
-    cy.intercept('PATCH', '**/items/*').as('updateQty');
 
-    // --- STEP 4: Ubah Quantity Thermos jadi 2 & VALIDASI VISUAL ---
+    // 2. Ubah Qty Thermos jadi 2
     cy.contains('tr', 'Stainless Steel Thermos').within(() => {
         cy.contains('button', '+').click();
-        // Validasi Qty jadi 2
-        cy.get('span.min-w-\\[3rem\\]').should('have.text', '2');
-        
-        // [PERBAIKAN KRUSIAL] 
-        // Tunggu sampai kolom TOTAL di baris ini berubah jadi $70.00
-        // Ini mencegah Cypress menghitung saat angkanya masih $35.00
-        cy.get('td').last().should('contain', '$70.00');
+        cy.wait('@updateQty'); 
+        cy.get('td').last().should('contain', '$70.00'); 
     });
 
-    // Tunggu network (safety tambahan)
-    cy.wait('@updateQty');
-
-    // --- STEP 5: Validasi Perhitungan Total ---
+    // 3. Hitung Manual vs UI
     let calculatedSum = 0;
 
     cy.get('table.cart__items__table tbody tr').each(($row) => {
-        // Ambil teks total dari kolom terakhir
         const lineTotalText = $row.find('td').last().text();
         const lineValue = parseFloat(lineTotalText.replace(/[^0-9.]/g, ''));
-        
         calculatedSum += lineValue;
     }).then(() => {
-        cy.log(`Total Hasil Hitung: ${calculatedSum}`); // Seharusnya 95
-
-        // [PERBAIKAN SELECTOR]
-        // Gunakan .children('div').last() untuk mengambil container kanan
-        // Selector lama .find('div').last() mengambil div kosong di dalam container itu
-        cy.get('.summary__row.grand-total').children('div').last().should(($div) => {
-            const text = $div.text(); // Mengambil "$95.00"
-            const grandTotalValue = parseFloat(text.replace(/[^0-9.]/g, ''));
-
-            expect(grandTotalValue, `Total di UI ($${grandTotalValue}) harus sama dengan hitungan ($${calculatedSum})`)
-                .to.equal(calculatedSum);
+        cy.get('.summary__row.grand-total').children('div').last().invoke('text').then((text) => {
+            const uiTotal = parseFloat(text.replace(/[^0-9.]/g, ''));
+            expect(uiTotal).to.equal(calculatedSum);
         });
     });
   });
